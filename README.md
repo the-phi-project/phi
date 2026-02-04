@@ -22,6 +22,7 @@
 <h5 style="color:#fbb040">Quantum-Safe TUI Encryption/Decryption Tool<br>Named after Pheidippides <i>(Φειδιππίδης)</i> who ran 25 miles from Marathon to Athens in order to deliver a message.</h5>
 
 </div>
+
 > [!NOTE]
 > Guys I promise that I will profile this and make it as memory efficient as possible
 > But I have to build the thing first 😖
