@@ -1,10 +1,10 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "tasks": [
     {
       "label": "Build (Release)",
       "type": "shell",
-      "command": "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release && cmake --build _build -j4 && mv _build/phi ./ && mv _build/phid ./",
+      "command": "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release && cmake --build _build -j4 && mv _build/phi ./",
       "args": [],
       "group": {
         "kind": "build",
@@ -17,7 +17,7 @@
     {
       "label": "Build (Debug)",
       "type": "shell",
-      "command": "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Debug && cmake --build _build -j4 && mv _build/phi ./ && mv _build/phid ./ && dsymutil ./phi && dsymutil ./phid",
+      "command": "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Debug && cmake --build _build -j4 && mv _build/phi ./ && dsymutil ./phi",
       "args": [],
       "group": {
         "kind": "build",
@@ -43,7 +43,7 @@
     {
       "label": "Cleanup",
       "type": "shell",
-      "command": "mv _build/compile_commands.json ./;rm -rf _build/ && mkdir _build;mv ./compile_commands.json _build/;rm -f phi phid; rm -rf phi.dSYM phid.dSYM; rm -rf .cache",
+      "command": "mv _build/compile_commands.json ./;rm -rf _build/ && mkdir _build;mv ./compile_commands.json _build/;rm -rf phi phi.dSYM .cache",
       "args": [],
       "group": {
         "kind": "build",

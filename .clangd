@@ -3,4 +3,4 @@ CompileFlags:
   
 Diagnostics:
   UnusedIncludes: None    # turn OFF unused-include diagnostics for this project
-  MissingIncludes: None # optional: keep missing-include checks if you like them
+  MissingIncludes: None   # optional: keep missing-include checks if you like them

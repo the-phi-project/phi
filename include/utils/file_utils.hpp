@@ -40,7 +40,7 @@
 
 
 /*
-  erc: 0 if none, 1 if ~/.phi/ can't be created, 2 if main.db, 3 if self.json, 4 if bus.phi
+  erc: 0 if none, 1 if ~/.phi/ can't be created, 2 if main.db
   permissions
 */
 [[nodiscard]] static bool createDataFiles(int& erc) {
@@ -55,17 +55,12 @@
     }
   }
 
-  const std::map<std::string, int> data{
-    {PATH + "main.db", 2}, {PATH + "self.json", 3}, {PATH + "tasks.db", 4}};
-  for (const auto& [file_path, error_code] : data) {
-    if (!std::filesystem::exists(file_path)) {
-      // no try-catch here because it already passed above
-      std::ofstream file(file_path);  // RAII -- auto closes
+  if (!std::filesystem::exists(PATH + "main.db")) {
+    std::ofstream file(PATH + "main.db");
 
-      if (!file) {
-        erc = 2;
-        return false;
-      }
+    if (!file) {
+      erc = 2;
+      return false;
     }
   }
 

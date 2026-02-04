@@ -4,7 +4,7 @@
  2026/01/01
 
  Phi C++ Project
- include/phi/ui/Manager.hpp
+ include/ui/Manager.hpp
 
  Zevi Berlin
 
@@ -31,15 +31,11 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/color.hpp>
 
-#include "phi/database/Database.hpp"
-#include "phi/database/structs.hpp"
-#include "tasks/TaskMaster.hpp"
-#include "tasks/task_struct.hpp"
-#include "phi/encryption/Encryptor.hpp"
-#include "phi/encryption/secrets.hpp"
-#include "phi/ui/color_defs.hpp"
-#include "phi/ui/utils.hpp"
-#include "phi/ui/constants.hpp"
+#include "database/Database.hpp"
+#include "database/structs.hpp"
+#include "ui/color_defs.hpp"
+#include "ui/utils.hpp"
+#include "ui/constants.hpp"
 #include "utils/str_utils.hpp"
 
 //---------> [ Config. Separator ] <---------\\ 
@@ -77,15 +73,20 @@ struct Components {
 enum class Page : unsigned char {
   Login,
   Home,
+  EncryptMessage,
+  DecryptMessage,
   ContactsMenu,
   EditContact,
+  AddContact,
+  DeleteContact,
   ContactDoesNotExist,
-  ContactRequestsMenu,
-  ConversationsMenu,
-  ViewErrorsMenu,
   EditSelf,
-  ChangeDatabasePassword,
-  Settings,
+  EditSelfRSA2048,
+  EditSelfRSA4096,
+  EditSelfKyber512,
+  EditSelfKyber768,
+  EditSelfAES,
+  EditSelfChaCha,
   Screensaver
 };
 
@@ -115,12 +116,10 @@ struct State {
 class Manager {
   private:
     std::shared_ptr<phi::database::Database> DATABASE;
-    std::shared_ptr<phi::encryption::Encryptor> ENCRYPTOR;
-    std::shared_ptr<phi::tasks::TaskMaster> TASKMASTER;
 
     ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
 
-    State state{Page::Login, {false, "", "", phi::ui::colors::PURPLE_HAZE, {}}};
+    State state{Page::Home, {false, "", "", phi::ui::colors::PURPLE_HAZE, {}}};
     Components components;
 
     //=====[ Declaration Separator ]=====\\ 
@@ -142,7 +141,10 @@ class Manager {
 
     phi::database::contact_t selected_contact_t{};
     int selected_contact_id = 0;
-    std::string displayable_rsa_key;
+    std::string displayable_rsa2048;
+    std::string displayable_rsa4096;
+    std::string displayable_kyber512;
+    std::string displayable_kyber768;
 
     //
 
@@ -156,13 +158,21 @@ class Manager {
     //
 
     phi::database::self_t editable_self;
+    std::string self_displayable_rsa2048_pub;
+    std::string self_displayable_rsa2048_priv;
+    std::string self_displayable_rsa4096_pub;
+    std::string self_displayable_rsa4096_priv;
+    std::string self_displayable_kyber512_pub;
+    std::string self_displayable_kyber512_priv;
+    std::string self_displayable_kyber768_pub;
+    std::string self_displayable_kyber768_priv;
+    std::string self_displayable_aes128;
+    std::string self_displayable_aes192;
+    std::string self_displayable_aes256;
+    std::string self_displayable_chacha20_poly1305;
 
-    std::string displayable_self_rsa_priv_key;
-    std::string displayable_self_rsa_pub_key;
-
-    public : Manager(std::shared_ptr<phi::database::Database> database,
-                     std::shared_ptr<phi::encryption::Encryptor> encryptor,
-                     std::shared_ptr<phi::tasks::TaskMaster> taskmaster);
+  public:
+    Manager(std::shared_ptr<phi::database::Database> database);
 
     //=====[ Declaration Separator ]=====\\ 
 

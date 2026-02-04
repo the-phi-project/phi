@@ -12,7 +12,7 @@ from datetime import datetime
 from os import path, makedirs, system
 
 
-def create_code_files(header_parent_dir: str, source_parent_dir: str, filename: str, author_name: str) -> None:
+def create_code_files(header_parent_dir: str, filename: str, author_name: str) -> None:
     author_name = "Zevi Berlin" if not author_name else author_name
     
     cap_name: str = filename.upper()
@@ -53,7 +53,7 @@ def create_code_files(header_parent_dir: str, source_parent_dir: str, filename: 
         header.write(header_content)
         
 
-    source_path: str = f"src/{source_parent_dir + '/' if source_parent_dir else ''}{filename}.cpp"
+    source_path: str = f"src/{filename}.cpp"
 
     source_content: str = f"""/*
 
@@ -70,8 +70,6 @@ def create_code_files(header_parent_dir: str, source_parent_dir: str, filename: 
 #include "{header_parent_dir + '/' if header_parent_dir else ''}{filename}.hpp"
 
 """
-    makedirs(f"src/{source_parent_dir}", exist_ok=True)
-    
     if path.exists(source_path) and path.getsize(source_path) > 0:
         print(f"Source file '{source_path}' already exists and has content.")
         if input("Would you like to erase and rewrite it (y/n)? ") not in ["y", "Y", "yes", "YES", "1", 1]:
@@ -109,10 +107,9 @@ def main():
     match (x := int(input("\n    >> "))):
         case 1:
             header_parent_dir = input("Header Parent Dir (e.g 'data' for path 'include/data/'): ")
-            source_parent_dir = input("Source Parent Dir ('phi' or 'phid'): ")
             filename = input("Filename (do not include .cpp/.hpp): ")
             author_name = input("Your name (defaults to Zevi Berlin): ")
-            create_code_files(header_parent_dir, source_parent_dir, filename, author_name)
+            create_code_files(header_parent_dir, filename, author_name)
             print("\nSUCCESSFULLY CREATED AND BOILERPLATED FILES")
 
         case 2:
@@ -120,16 +117,16 @@ def main():
             if input("Continue? ") != "y": exit(1)
             system("cmake --build _build -j4")
             
-            system("mv _build/phi ./ && mv _build/phid ./")
+            system("mv _build/phi ./")
 
         case 3:
             system("cmake -S . -B _build -DCMAKE_BUILD_TYPE=Debug")
             if input("Continue? ") != "y": exit(1)
             system("cmake --build _build -j4")
             
-            system("mv _build/phi ./ && mv _build/phid ./")
+            system("mv _build/phi ./")
 
-            system("dsymutil ./phi && dsymutil ./phid")
+            system("dsymutil ./phi")
 
         case 4:
             system("mv _build/compile_commands.json ./")
@@ -139,8 +136,7 @@ def main():
 
             system("mv ./compile_commands.json _build/")
 
-            system("rm -f phi phid")
-            system("rm -rf phi.dSYM phid.dSYM .cache")
+            system("rm -rf phi phi.dSYM .cache")
 
         case 5:
             system("find src -type f \\( -name \"*.c\" -o -name \"*.cpp\" \\) -exec clang-format -i {} +")

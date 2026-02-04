@@ -4,31 +4,29 @@
  2026/01/01
 
  Phi C++ Project
- src/phi/Manager.cpp
+ src/Manager.cpp
 
  Zevi Berlin
 
 */
 
-#include "phi/ui/Manager.hpp"
+#include "ui/Manager.hpp"
 
 //---------> [ Config. Separator ] <---------\\ 
 
 void phi::ui::Manager::getContacts() {
-  std::unique_ptr<std::vector<std::tuple<int, std::string, std::string>>> actuals =
-    DATABASE->getAllContacts();
+  std::vector<std::tuple<int, std::string>> actuals = DATABASE->getAllContacts();
 
   std::vector<std::string> contacts;
   std::vector<int> contact_ids;
 
-  if (actuals != nullptr) {
-    contacts.resize(actuals->size());
-    contact_ids.resize(actuals->size());
-    for (size_t i = 0; i < actuals->size(); i++) {
-      auto tup = actuals->at(i);
+  if (!actuals.empty()) {
+    contacts.resize(actuals.size());
+    contact_ids.resize(actuals.size());
+    for (size_t i = 0; i < actuals.size(); i++) {
+      auto tup = actuals.at(i);
 
-      contacts[i] =
-        std::get<2>(tup) + " " + std::get<1>(tup) + " (" + std::to_string(std::get<0>(tup)) + ")";
+      contacts[i] = std::get<1>(tup) + " (" + std::to_string(std::get<0>(tup)) + ")";
       contact_ids[i] = std::get<0>(tup);
     }
   }
@@ -44,8 +42,10 @@ void phi::ui::Manager::rebuildRoot(ftxui::Component& root) const {
 
   switch (this->state.page) {
     case phi::ui::Page::Login:
-      root->Add(this->components.login_input);
-      this->components.login_input->TakeFocus();
+      // root->Add(this->components.login_input);
+      // this->components.login_input->TakeFocus();
+      root->Add(this->components.home_button_layout);
+      this->components.home_button_layout->TakeFocus();
       break;
     case phi::ui::Page::Home:
       root->Add(this->components.home_button_layout);
@@ -93,13 +93,8 @@ void phi::ui::Manager::addNoti(const std::string& title, const std::string& desc
 |*:::::::::[ Access Separator ]:::::::::*|
 \*::::::::::::::::::::::::::::::::::::::*/
 
-phi::ui::Manager::Manager(std::shared_ptr<phi::database::Database> database,
-                          std::shared_ptr<phi::encryption::Encryptor> encryptor,
-                          std::shared_ptr<phi::tasks::TaskMaster> taskmaster)
-    : DATABASE(std::move(database)),
-      ENCRYPTOR(std::move(encryptor)),
-      TASKMASTER(std::move(taskmaster)),
-      editable_self(this->DATABASE->self) {
+phi::ui::Manager::Manager(std::shared_ptr<phi::database::Database> database)
+    : DATABASE(std::move(database)), editable_self(this->DATABASE->self) {
   this->getContacts();
   this->loadComponents();
 }
@@ -176,7 +171,6 @@ void phi::ui::Manager::eventLoop() {
         break;
 
       case phi::ui::Page::EditContact:
-        this->displayable_rsa_key = toB64(selected_contact_t.rsa_key.substr(0, 26)) + "...";
         base = this->renderContactPageUI(this->contact_ids.at(this->selected_contact_id));
         break;
 
@@ -185,8 +179,6 @@ void phi::ui::Manager::eventLoop() {
         break;
 
       case phi::ui::Page::EditSelf:
-        this->displayable_self_rsa_priv_key = toB64(this->DATABASE->self.rsa_priv_key);
-        this->displayable_self_rsa_pub_key = toB64(this->DATABASE->self.rsa_pub_key);
         base = this->renderSelfEditPageUI();
         break;
 

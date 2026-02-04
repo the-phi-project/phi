@@ -4,29 +4,30 @@
  2025/12/21
 
  Phi C++ Project
- include/phi/encryption/gzip_basic.hpp
+ include/encryption/gzip_basic.hpp
 
  Zevi Berlin
 
 */
 
-#ifndef GZIP_BASIC_HPP
-#define GZIP_BASIC_HPP
+#include "encryption/gzip.hpp"
 
 #include <string>
 #include <stdexcept>
 
 #include <zlib.h>
 
-namespace phi::encryption {
+#define BUF_SIZE 16384
 
-static std::string gzipCompress(const std::string& input, int level = 3) {
+//---------> [ Config. Separator ] <---------\\ 
+
+std::string phi::encryption::gzipCompress(const std::string& input) {
   z_stream zstr{};
   zstr.zalloc = Z_NULL;
   zstr.zfree = Z_NULL;
   zstr.opaque = Z_NULL;
 
-  if (deflateInit2(&zstr, level, Z_DEFLATED,
+  if (deflateInit2(&zstr, 3, Z_DEFLATED,
                    15 + 16,  // gzip
                    8, Z_DEFAULT_STRATEGY) != Z_OK) {
     throw std::runtime_error("deflateInit2 failed");
@@ -36,7 +37,7 @@ static std::string gzipCompress(const std::string& input, int level = 3) {
   zstr.avail_in = static_cast<uInt>(input.size());
 
   std::string output;
-  char buffer[16384];
+  char buffer[BUF_SIZE];
 
   int ret;
   do {
@@ -56,9 +57,9 @@ static std::string gzipCompress(const std::string& input, int level = 3) {
   return output;
 }
 
-/***/
+//------------[ Func. Implementation Separator ]------------\\ 
 
-static std::string gzipDecompress(const std::string& input) {
+std::string phi::encryption::gzipDecompress(const std::string& input) {
   z_stream zstr{};
   zstr.zalloc = Z_NULL;
   zstr.zfree = Z_NULL;
@@ -72,7 +73,7 @@ static std::string gzipDecompress(const std::string& input) {
   zstr.avail_in = static_cast<uInt>(input.size());
 
   std::string output;
-  char buffer[16384];
+  char buffer[BUF_SIZE];
 
   int ret;
   do {
@@ -91,7 +92,3 @@ static std::string gzipDecompress(const std::string& input) {
 
   return output;
 }
-
-}  // namespace phi::encryption
-
-#endif /* GZIP_BASIC_HPP */

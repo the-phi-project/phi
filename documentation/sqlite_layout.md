@@ -1,4 +1,23 @@
-### Database Initialization Located In: phi/src/phi/Database.cpp
+### Database Initialization Located In: phi/src/Database.cpp
+
+---
+
+## Table: self
+| Col | Type | Other |
+| :----: | :----: | :----: |
+| id | PRIMARY KEY | ONLY ONE, SO ID CHECKED TO == 1 |
+| rsa2048_pub | TEXT | N/A |
+| rsa2048_priv | TEXT | N/A |
+| rsa4096_pub | TEXT | N/A |
+| rsa4096_priv | TEXT | N/A |
+| kyber512_pub | TEXT | N/A |
+| kyber512_priv | TEXT | N/A |
+| kyber768_pub | TEXT | N/A |
+| kyber768_priv | TEXT | N/A |
+| aes128 | TEXT | N/A |
+| aes192 | TEXT | N/A |
+| aes256 | TEXT | N/A |
+| chacha20_poly1305 | TEXT | N/A |
 
 ---
 
@@ -6,37 +25,11 @@
 | Col | Type | Other |
 | :----: | :----: | :----: |
 | id | PRIMARY KEY | AUTOINCREMENT |
-| name | TEXT | DEFAULT "Contact" |
-| emoji | TEXT | DEFAULT "👤" |
-| addr | TEXT | NOT NULL |
-| shared_secret | TEXT | NOT NULL |
-| rsa_key | TEXT | NOT NULL |
+| name | TEXT | DEFAULT "Contact #<id>" |
+| rsa2048 | TEXT | N/A |
+| rsa4096 | TEXT | N/A |
+| kyber512 | TEXT | N/A |
+| kyber768 | TEXT | N/A |
 ```sql
-UNIQUE(addr)
+UNIQUE(name)
 ```
- - id 0 is used to represent an unknown contact
-
----
-
-## Table: messages
-| Col | Type | Other |
-| :----: | :----: | :----: |
-| id | PRIMARY KEY | AUTOINCREMENT |
-| contact_id | INTEGER | NOT NULL |
-| sender | BOOLEAN | NOT NULL |
-| content | TEXT | NOT NULL |
-| timestamp | UNSIGNED BIG INT | NOT NULL |
-| delivered | BOOLEAN | DEFAULT FALSE |
-```sql
-FOREIGN KEY (contact_id) REFERENCES contacts(id)
-```
-
----
-
-## Table: errors
-| Col | Type | Other |
-| :----: | :----: | :----: |
-| id | PRIMARY KEY | AUTOINCREMENT |
-| title | TEXT | NOT NULL |
-| description | TEXT | N/A |
-| timestamp | UNSIGNED BIG INT | NOT NULL |
