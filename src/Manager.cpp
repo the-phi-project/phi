@@ -26,7 +26,7 @@ void phi::ui::Manager::getContacts() {
     for (size_t i = 0; i < actuals.size(); i++) {
       auto tup = actuals.at(i);
 
-      contacts[i] = std::get<1>(tup) + " (" + std::to_string(std::get<0>(tup)) + ")";
+      contacts[i] = "(" + std::to_string(std::get<0>(tup)) + ") " + std::get<1>(tup);
       contact_ids[i] = std::get<0>(tup);
     }
   }

@@ -19,6 +19,7 @@
 
 #include "database/Database.hpp"
 #include "ui/Manager.hpp"
+#include "parser.hpp"
 #include "utils/misc_utils.hpp"
 #include "utils/str_utils.hpp"
 
@@ -27,26 +28,13 @@
 namespace tmc = termcolor;
 
 int main(int argc, char** argv) {
-  // TODO: Implement a CLI version via command
-  // NOLINTBEGIN
-  if (argc > 1) {
-    if (strcmp("--version", argv[1]) == 0) {
-      std::cout << PHI_VERSION << std::endl;
-    } else if (strcmp("--help", argv[1]) == 0) {
-      std::cout << "For help, read the Phi manual using the command " << tmc::bold << tmc::italic
-                << "`man phi`" << tmc::reset << std::endl;
-    } else {
-      std::cout << tmc::red << "Unrecognized argument `" << argv[1] << '`' << tmc::reset
-                << std::endl;
-    }
-    return 0;
-  }
-  // NOLINTEND
+  bool cli_mode = (argc > 1);
 
   /**** GLOBAL CONFIG ****/
 
   int erc = 0;
 
+  // TODO: Add features for updates (~/.phi/updates/) and a backup database (~/.phi/__backup.db)
   if (!createDataFiles(erc)) {
     std::cout << tmc::bright_red;
     if (erc == 1) {
@@ -65,6 +53,10 @@ int main(int argc, char** argv) {
     std::make_shared<phi::database::Database>();
 
   /**** ****/
+
+  if (cli_mode) {
+    return phi::parse_commands(argc, argv, DATABASE);
+  }
 
   auto size = phi::ui::getTerminalSize();
   if (size.ws_col < phi::ui::COLS || size.ws_row < phi::ui::ROWS) {

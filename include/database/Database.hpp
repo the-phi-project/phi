@@ -78,7 +78,7 @@ class Database {
     /*
       returns a vector of tuples, the tuples being:
 
-      {id, name, emoji} or a nullptr if there are no contacts
+      {id, name} or a nullptr if there are no contacts
     */
     std::vector<std::tuple<int, std::string>> getAllContacts();
 

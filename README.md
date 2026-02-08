@@ -19,7 +19,7 @@
 
 # PHI
 
-<h5 style="color:#fbb040">Quantum-Safe TUI Encryption/Decryption Tool<br>Named after Pheidippides <i>(Φειδιππίδης)</i> who ran 25 miles from Marathon to Athens in order to deliver a message.</h5>
+<h5 style="color:#fbb040">Quantum-Safe TUI Encryption/Decryption Tool with a Contact Book<br>Named after Pheidippides <i>(Φειδιππίδης)</i> who ran 25 miles from Marathon to Athens in order to deliver a message.</h5>
 
 </div>
 

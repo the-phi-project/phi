@@ -69,4 +69,16 @@
   return opt;
 }
 
+//------------[ Func. Implementation Separator ]------------\\ 
+
+[[nodiscard]] static std::string vecStrToStr(const std::vector<std::string>& vec) {
+  std::string opt = "[";
+  for (int i = 0; i < vec.size() - 1; i++) {
+    opt += vec[i] + ", ";
+  }
+
+  opt += vec[vec.size() - 1] + "]";
+  return opt;
+}
+
 #endif /* STR_UTILS_HPP */
