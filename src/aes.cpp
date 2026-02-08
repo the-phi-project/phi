@@ -28,37 +28,32 @@
 
 //---------> [ Config. Separator ] <---------\\ 
 
-void phi::encryption::aesGenKey(int size, std::string& op_key, std::string& op_iv) {
+std::string phi::encryption::aesGenKey(int size) {
   CryptoPP::AutoSeededRandomPool rng;
   CryptoPP::SecByteBlock key(size / 8);
   rng.GenerateBlock(key, key.size());
 
-  std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
-  rng.GenerateBlock(iv.data(), iv.size());
-
-  op_key = phi::encryption::aesToStr(key);
-  op_iv = std::string(reinterpret_cast<const char*>(iv.data()), iv.size());
+  return phi::encryption::aesToStr(key);
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-std::string phi::encryption::aesEncrypt(const std::string& str, const std::string& aes_key,
-                                        const std::string& aes_iv) {
+void phi::encryption::aesEncrypt(const std::string& str, const std::string& aes_key,
+                                 std::string& encrypted, std::string& aes_iv) {
   CryptoPP::SecByteBlock key = phi::encryption::aesFromStr(aes_key);
 
+  CryptoPP::AutoSeededRandomPool rng;
   std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
-  const size_t copy_len = std::min(aes_iv.size(), iv.size());
-  if (copy_len > 0) std::memcpy(iv.data(), aes_iv.data(), copy_len);
+  rng.GenerateBlock(iv.data(), iv.size());
 
   CryptoPP::GCM<CryptoPP::AES>::Encryption enc;
   enc.SetKeyWithIV(key, key.size(), iv.data(), iv.size());
 
-  std::string output;
   CryptoPP::StringSource css(str, true,
                              new CryptoPP::AuthenticatedEncryptionFilter(
-                               enc, new CryptoPP::StringSink(output), false, TAG_SIZE));
+                               enc, new CryptoPP::StringSink(encrypted), false, TAG_SIZE));
 
-  return output;
+  aes_iv = std::string(reinterpret_cast<const char*>(iv.data()), iv.size());
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
