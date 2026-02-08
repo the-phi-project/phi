@@ -99,13 +99,13 @@ void phi::database::Database::updateSelf(phi::database::self_t& new_self) {
   std::unordered_map<std::string, std::string> updatedFields;
 
   for (const auto& [field, ptr] : this->self.MAP) {
-    if (*ptr != *new_self.MAP[field]) {
-      updatedFields[field] = *new_self.MAP[field];
+    if (*ptr != *(new_self.MAP[field])) {
+      updatedFields[field] = *(new_self.MAP[field]);
     }
   }
 
   for (const auto& [field, val] : updatedFields) {
-    SQLite::Statement change(this->db, "UPDATE contacts SET " + field + " = :val WHERE id = 1");
+    SQLite::Statement change(this->db, "UPDATE self SET " + field + " = :val WHERE id = 1");
     change.bind(":val", toB64(val));
     change.exec();
   }
@@ -186,8 +186,8 @@ void phi::database::Database::updateContact(phi::database::contact_t& current,
 
   std::unordered_map<std::string, std::string> updatedFields;
   for (const auto& [field, ptr] : current.MAP) {
-    if (*ptr != *to_set.MAP[field]) {
-      updatedFields[field] = *to_set.MAP[field];
+    if (*ptr != *(to_set.MAP[field])) {
+      updatedFields[field] = *(to_set.MAP[field]);
     }
   }
 
