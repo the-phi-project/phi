@@ -35,7 +35,7 @@ void phi::encryption::rsaGenKeyPair(int size, std::string& op_public, std::strin
   /**/
 
   op_public = phi::encryption::rsaToStr<CryptoPP::RSA::PublicKey>(pub);
-  op_private = phi::encryption::rsaToStr<CryptoPP::RSA::PublicKey>(priv);
+  op_private = phi::encryption::rsaToStr<CryptoPP::RSA::PrivateKey>(priv);
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
@@ -66,12 +66,8 @@ bool phi::encryption::rsaDecrypt(int nbytes, const std::string& str,
     CryptoPP::RSAES_OAEP_SHA_Decryptor decryptor(key);
 
     std::string output;
-    output.resize(nbytes);
     CryptoPP::StringSource css(
-      reinterpret_cast<const unsigned char*>(
-        output.data()),  // the C string version of the encrypted key
-      nbytes,            // explicit length to copy so that it doesnt stop at first \0
-      true,              // pump all
+      str, true,
       new CryptoPP::PK_DecryptorFilter(rng, decryptor, new CryptoPP::StringSink(output)));
 
     op_text = output;

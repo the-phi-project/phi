@@ -43,9 +43,18 @@ phi::database::Database::Database() {
 
   /**/
 
-  SQLite::Statement check(this->db, "SELECT 1 FROM self WHERE id = 1");
-  if (!check.executeStep()) {
+  SQLite::Statement getSelf(this->db, "SELECT * FROM self WHERE id = 1");
+  if (!getSelf.executeStep()) {
     this->createSelf();
+  } else {
+    this->self.rsa2048_priv = fromB64(getSelf.getColumn("rsa2048_priv").getString());
+    this->self.rsa2048_pub = fromB64(getSelf.getColumn("rsa2048_pub").getString());
+    this->self.rsa4096_priv = fromB64(getSelf.getColumn("rsa4096_priv").getString());
+    this->self.rsa4096_pub = fromB64(getSelf.getColumn("rsa4096_pub").getString());
+    this->self.kyber512_pub = fromB64(getSelf.getColumn("kyber512_pub").getString());
+    this->self.kyber512_priv = fromB64(getSelf.getColumn("kyber512_priv").getString());
+    this->self.kyber768_pub = fromB64(getSelf.getColumn("kyber768_pub").getString());
+    this->self.kyber768_priv = fromB64(getSelf.getColumn("kyber768_priv").getString());
   }
 }
 
@@ -63,11 +72,7 @@ void phi::database::Database::createTables() {
         kyber512_pub TEXT,
         kyber512_priv TEXT,
         kyber768_pub TEXT,
-        kyber768_priv TEXT,
-        aes128 TEXT,
-        aes192 TEXT,
-        aes256 TEXT,
-        chacha20_poly1305 TEXT
+        kyber768_priv TEXT
       );
 
       CREATE TABLE IF NOT EXISTS contacts (
@@ -109,6 +114,8 @@ void phi::database::Database::updateSelf(phi::database::self_t& new_self) {
     change.bind(":val", toB64(val));
     change.exec();
   }
+
+  this->self = new_self;
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
@@ -187,13 +194,17 @@ void phi::database::Database::updateContact(phi::database::contact_t& current,
   std::unordered_map<std::string, std::string> updatedFields;
   for (const auto& [field, ptr] : current.MAP) {
     if (*ptr != *(to_set.MAP[field])) {
-      updatedFields[field] = *(to_set.MAP[field]);
+      if (field != "name") {
+        updatedFields[field] = toB64(*(to_set.MAP[field]));
+      } else {
+        updatedFields[field] = *(to_set.MAP[field]);
+      }
     }
   }
 
   for (const auto& [field, val] : updatedFields) {
     SQLite::Statement change(this->db, "UPDATE contacts SET " + field + " = :val WHERE id = :id");
-    change.bind(":val", toB64(val));
+    change.bind(":val", val);
     change.bind(":id", current.id);
     change.exec();
   }
