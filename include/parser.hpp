@@ -39,11 +39,9 @@ namespace tmc = termcolor;
 
 namespace phi {
 
-static const std::vector<std::tuple<std::string, int>> asymtypes{
-  {"rsa2048", 0}, {"rsa4096", 1}, {"kyber512", 2}, {"kyber768", 3}};
+static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
 
-static const std::vector<std::tuple<std::string, int>> symtypes{
-  {"aes128", 0}, {"aes192", 1}, {"aes256", 2}, {"chacha20_poly1305", 3}};
+static const std::vector<std::string> symtypes{"aes128", "aes192", "aes256", "chacha20_poly1305"};
 
 //=====[ Declaration Separator ]=====\\ 
 
@@ -69,7 +67,8 @@ https://github.com/the-phi-project/phi
      "(OPTIONAL, default stdin) Input FILEpath to encrypt/decrypt (encrypted must be base64)",
      cxxopts::value<std::string>())  //
     ("str",
-     "(OPTIONAL) If not using an input file, the encrypted message or message to encrypt goes here",
+     "(OPTIONAL) If not using an input file, the encrypted message or message to encrypt goes "
+     "here",
      cxxopts::value<std::string>())  //
     ("out-file", "(OPTIONAL, default stdout) Output FILEpath for encrypted/decrypted message\n",
      cxxopts::value<std::string>())  //
@@ -78,7 +77,8 @@ https://github.com/the-phi-project/phi
      "kyber512, kyber768}",
      cxxopts::value<std::string>())  //
     ("symmetric",
-     "(Not necessary for decrypt mode) TYPE of symmetric encryption, any {aes128, aes192, aes256, "
+     "(Not necessary for decrypt mode) TYPE of symmetric encryption, any {aes128, aes192, "
+     "aes256, "
      "chacha20_poly1305}\n",
      cxxopts::value<std::string>())  //
     ("contact-id", "Which contact's keys to use, by ID", cxxopts::value<int>());
@@ -88,8 +88,20 @@ https://github.com/the-phi-project/phi
 
 //================={ Header Item Separator }=================\\ 
 
-int parseCommands(cxxopts::Options& options, int argc, char** argv,
-                  const std::shared_ptr<phi::database::Database>& DATABASE);
+int parseArguments(cxxopts::Options& options, int argc, char** argv,
+                   const std::shared_ptr<phi::database::Database>& DATABASE);
+
+//================={ Header Item Separator }=================\\ 
+
+bool encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
+                    const std::string& message, int symmode, int asymmode,
+                    phi::database::message_t& op);
+
+
+//================={ Header Item Separator }=================\\ 
+
+bool decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
+                    const phi::database::message_t& message, std::string& op);
 
 }  // namespace phi
 

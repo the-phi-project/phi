@@ -41,8 +41,8 @@ namespace tmc = termcolor;
 
 //---------> [ Config. Separator ] <---------\\ 
 
-int phi::parseCommands(cxxopts::Options& options, int argc, char** argv,
-                       const std::shared_ptr<phi::database::Database>& DATABASE) {
+int phi::parseArguments(cxxopts::Options& options, int argc, char** argv,
+                        const std::shared_ptr<phi::database::Database>& DATABASE) {
   try {
     auto result = options.parse(argc, argv);
 
@@ -58,212 +58,307 @@ int phi::parseCommands(cxxopts::Options& options, int argc, char** argv,
       return 0;
     }
 
-    bool encrypt_mode = false;
+    /*########## LONG FUNC ###########*\
+    \*######## IN-SEPARATOR ##########*/
+
     if (result.contains("encrypt")) {
       if (result.contains("decrypt")) {
-        std::cout << RED << "Error inciting program, argments must contain ONLY ONE mode, not both"
-                  << "\n"
-                  << RST;
+        std::cout << RED << "Cannot have both encrypt mode and decrypt mode enabled\n" << RST;
         return 1;
       }
-      encrypt_mode = true;
-    } else if (result.contains("decrypt")) {
-      encrypt_mode = false;
-    } else {
-      std::cout << RED << "Error inciting program, argments must contain either `" << ITL
-                << "--encrypt" << RST << RED << "` or `" << ITL << "--decrypt" << RST << RED
-                << "`\n"
-                << RST;
-      return 1;
-    }
 
-    bool in_file_mode = result.contains("in-file");
-    bool out_file_mode = result.contains("out-file");
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
 
-    if (in_file_mode && result.contains("str")) {
-      std::cout
-        << RED << "Error inciting program, argments must contain ONLY ONE form of input, not both\n"
-        << RST;
-      return 1;
-    }
-
-    if (encrypt_mode) {
-      int asymmetric_mode = -1;
-      for (const auto& type : phi::asymtypes) {
-        if (result["asymmetric"].as<std::string>() == std::get<0>(type)) {
-          asymmetric_mode = std::get<1>(type);
-          break;
-        }
-      }
-      if (asymmetric_mode == -1) {
+      if (!result.contains("contact-id")) {
         std::cout << RED
-                  << "Error inciting program, value must come after --asymmetric argument, any of "
-                  << "{rsa2048, rsa4096, kyber512, kyber768}\n"
+                  << "Arguments must include a contact ID after --contact-id to encrypt a message\n"
                   << RST;
-        return 1;
+        return 2;
       }
+      int contact_id = result["contact-id"].as<int>();
 
-      int symmetric_mode = -1;
-      for (const auto& type : phi::symtypes) {
-        if (result["symmetric"].as<std::string>() == std::get<0>(type)) {
-          symmetric_mode = std::get<1>(type);
-          break;
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      int symmode = -1;
+      int asymmode = -1;
+      if (result.count("symmetric") == 1 && result.count("asymmetric") == 1) {
+        std::string sym = result["symmetric"].as<std::string>();
+        std::string asym = result["asymmetric"].as<std::string>();
+
+        for (size_t i = 0; i < phi::symtypes.size(); i++) {
+          if (phi::symtypes.at(i) == sym) {
+            symmode = i;
+            break;
+          }
         }
-      }
-      if (symmetric_mode == -1) {
-        std::cout << RED
-                  << "Error inciting program, value must come after --symmetric argument, any of "
-                  << "{aes128, aes192, aes256, chacha20_poly1305}\n"
-                  << RST;
-        return 1;
-      }
-    }
-
-    int contact_id = 0;
-    if (result.contains("contact-id")) {
-      contact_id = result["contact-id"].as<int>();
-    } else {
-      std::cout << RED << "Error inciting program, `" << ITL << "--contact-id ID" << RST << RED
-                << "` argument missing\n"
-                << RST;
-      return 1;
-    }
-
-    std::string in_msg;
-
-    if (in_file_mode) {
-      std::ifstream file(result["in-file"].as<std::string>());
-      if (!file) {
-        std::cout << RED << "Error, could not open input file `" << ITL
-                  << result["in-file"].as<std::string>() << RST << RED << "`\n"
-                  << RST;
-        return 1;
-      }
-      std::stringstream medium;
-      medium << file.rdbuf();
-      in_msg = medium.str();
-    } else {
-      in_msg = result["str"].as<std::string>();
-    }
-
-    phi::database::contact_t contact;
-    if (!DATABASE->getContact(contact_id, contact)) {
-      std::cout << RED << "Error, no contact with ID `" << ITL << std::to_string(contact_id) << RST
-                << RED << "`\n"
-                << RST;
-      return 1;
-    }
-
-    if (encrypt_mode) {
-    } else {
-      in_msg = fromB64(in_msg);
-
-      phi::database::message_t message;
-      if (!message.from_json_str(in_msg)) {
-        std::cout << RED << "Error, encrypted message is not a valid JSON\n" << RST;
-        return 1;
-      }
-
-      std::string sym_key;
-      switch (message.asymmetric) {
-        case 0:
-          if (DATABASE->self.rsa2048_priv.empty()) {
-            std::cout
-              << RED << "Error, you don't have an RSA-2048 key with which to decrypt this message\n"
-              << RST;
-            return 1;
+        for (size_t i = 0; i < phi::asymtypes.size(); i++) {
+          if (phi::asymtypes.at(i) == asym) {
+            asymmode = i;
+            break;
           }
-
-          if (!phi::encryption::rsaDecrypt(message.symmetric_key_len, message.encrypted_key,
-                                           DATABASE->self.rsa2048_priv, sym_key)) {
-            std::cout << RED
-                      << "Error, your RSA-2048 key is not the right one to decrypt this message\n"
-                      << RST;
-            return 1;
-          }
-          break;
-        case 1:
-          if (DATABASE->self.rsa4096_priv.empty()) {
-            std::cout
-              << RED << "Error, you don't have an RSA-4096 key with which to decrypt this message\n"
-              << RST;
-            return 1;
-          }
-
-          if (!phi::encryption::rsaDecrypt(message.symmetric_key_len, message.encrypted_key,
-                                           DATABASE->self.rsa4096_priv, sym_key)) {
-            std::cout << RED
-                      << "Error, your RSA-4096 key is not the right one to decrypt this message\n"
-                      << RST;
-            return 1;
-          }
-
-          break;
-        case 2:
-          // kyber512
-          break;
-        case 3:
-          // kyber768
-          break;
-        default:
-          std::cout << RED
-                    << "Error, encrypted message contains an invalid asymmetric encryption mode, "
-                       "perhaps you need to update the app?\n"
-                    << RST;
-          return 1;
-      }
-
-      std::string decrypted_msg;
-      if (message.symmetric == 3) {  // ChaCha20-Poly1305
-        if (!phi::encryption::ccpDecryptText(message.content, sym_key, message.nonce,
-                                             decrypted_msg)) {
-          std::cout << RED
-                    << "Error, the ChaCha20-Poly1305 key given will not decrypt the message\n"
-                    << RST;
-          return 1;
-        }
-      } else if (message.symmetric >= 0) {  // AES
-        if (!phi::encryption::aesDecrypt(message.content, sym_key, message.iv, decrypted_msg)) {
-          std::cout << RED << "Error, the AES key given will not decrypt the message\n" << RST;
-          return 1;
         }
       } else {
         std::cout << RED
-                  << "Error, encrypted message contains an invalid symmetric encryption mode, "
-                     "perhaps you need to update the app?\n"
+                  << "Arguments must include a single argument for both symmetric and asymmetric "
+                     "modes of encryption after --symmetric and --asymmetric (respectively)\n"
                   << RST;
-        return 1;
+        return 3;
+      }
+      if (symmode == -1) {
+        std::cout << RED << "Invalid symmetric mode of encryption, options are `" << ITL
+                  << vecStrToStr(phi::symtypes) << RST << RED << "`\n"
+                  << RST;
+        return 3;
+      }
+      if (asymmode == -1) {
+        std::cout << RED << "Invalid asymmetric mode of encryption, options are `" << ITL
+                  << vecStrToStr(phi::asymtypes) << RST << RED << "`\n"
+                  << RST;
+        return 3;
       }
 
-      decrypted_msg = phi::encryption::gzipDecompress(decrypted_msg);
-      if (!phi::encryption::blake2bVerifyHash(decrypted_msg, message.hash)) {
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      std::string in_msg;
+      if (result.contains("in-file")) {
+        std::ifstream file(result["in-file"].as<std::string>());
+        if (!file) {
+          std::cout << RED << "Failed to open and read the file `" << ITL
+                    << result["in-file"].as<std::string>() << RST << RED << "`\n"
+                    << RST;
+          return 4;
+        }
+
+        std::stringstream medium;
+        medium << file.rdbuf();
+        in_msg = medium.str();
+      } else if (result.contains("str")) {
+        in_msg = result["str"].as<std::string>();
+      } else {
         std::cout << RED
-                  << "Error, the decompressed content does not match the hash signature, "
-                     "perhaps the message was tampered with\n"
+                  << "Arguments must contain either an input filepath after --in-file or an input "
+                     "as `--str \"<input>\"`\n"
                   << RST;
-        return 1;
+        return 4;
       }
 
-      if (out_file_mode) {
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      phi::database::message_t output{};
+      if (!phi::encryptMessage(DATABASE, contact_id, in_msg, symmode, asymmode, output)) {
+        std::cout << tmc::bright_red << BOLD << "ENCRYPTION FAILED.\n" << RST;
+        return 5;
+      }
+
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      if (result.contains("out-file")) {
         std::ofstream file(result["out-file"].as<std::string>());
         if (!file) {
-          std::cout << RED << "Error, could not open output file `" << ITL
+          std::cout << RED << "Failed to open and write to the file `" << ITL
                     << result["out-file"].as<std::string>() << RST << RED << "`\n"
                     << RST;
-          return 1;
+          return 6;
         }
 
-        if (encrypt_mode) {
-          ;
-        } else {
-          file << decrypted_msg << "\n";
-        }
+        file << toB64(output.to_json_str());
+      } else {
+        std::cout << toB64(output.to_json_str()) << "\n";
       }
+
+      std::cout << tmc::bright_green << BOLD << "ENCRYPTION SUCCESS.\n" << RST;
+      return 0;
+
+    } else if (result.contains("decrypt")) {
+      std::string in_msg;
+      if (result.contains("in-file")) {
+        std::ifstream file(result["in-file"].as<std::string>());
+        if (!file) {
+          std::cout << RED << "Failed to open and read the file `" << ITL
+                    << result["in-file"].as<std::string>() << RST << RED << "`\n"
+                    << RST;
+          return 4;
+        }
+
+        std::stringstream medium;
+        medium << file.rdbuf();
+        in_msg = fromB64(medium.str());
+      } else if (result.contains("str")) {
+        in_msg = fromB64(result["str"].as<std::string>());
+      } else {
+        std::cout << RED
+                  << "Arguments must contain either an input filepath after --in-file or an input "
+                     "as `--str \"<base64 input>\"`\n"
+                  << RST;
+        return 4;
+      }
+
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      phi::database::message_t message{};
+      if (!message.from_json_str(in_msg)) {
+        std::cout << RED
+                  << "Input message is not a valid JSON, try base64 decoding it and checking for "
+                     "formatting errors\n"
+                  << RST;
+        return 7;
+      }
+
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      std::string decrypted;
+      if (!phi::decryptMessage(DATABASE, message, decrypted)) {
+        std::cout << tmc::bright_red << BOLD << "DECRYPTION FAILED.\n" << RST;
+        return 5;
+      }
+
+      /*########## LONG FUNC ###########*\
+      \*######## IN-SEPARATOR ##########*/
+
+      if (result.contains("out-file")) {
+        std::ofstream file(result["out-file"].as<std::string>());
+        if (!file) {
+          std::cout << RED << "Failed to open and write to the file `" << ITL
+                    << result["out-file"].as<std::string>() << RST << RED << "`\n"
+                    << RST;
+          return 6;
+        }
+
+        file << decrypted;
+      } else {
+        std::cout << decrypted << "\n";
+      }
+
+      std::cout << tmc::bright_green << BOLD << "DECRYPTION SUCCESS.\n" << RST;
+      return 0;
+
+    } else {
+      std::cout << RED
+                << "Arguments must contain either --encrypt or --decrypt for encrypt or decrypt "
+                   "mode (respectively)\n"
+                << RST;
+      return 8;
     }
   } catch (const cxxopts::exceptions::exception& exc) {
     std::cout << RED << "Error parsing program arguments: " << ITL << exc.what() << RST << "\n";
-    return 1;
+    return 9;
   }
 
   return 0;
+}
+
+//------------[ Func. Implementation Separator ]------------\\ 
+
+
+bool phi::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
+                         const std::string& message, int symmode, int asymmode,
+                         phi::database::message_t& op) {
+  //
+  op.symmetric = symmode;
+  op.asymmetric = asymmode;
+  op.hash = phi::encryption::blake2bHashString(message);
+
+  const std::string compressed = phi::encryption::gzipCompress(message);
+
+  phi::database::contact_t contact;
+  if (!DATABASE->getContact(contact_id, contact)) {
+    std::cout << RED << "Failed to encrypt message, no contact found in database with ID `" << ITL
+              << contact_id << RST << RED << "`\n"
+              << RST;
+    return false;
+  }
+
+  std::string sym_key;
+  if (symmode >= 0 && symmode < 3) {
+    // if symmode is 0 this evals to 128, if symmode is 1 it evals to 192, if 2 its 256
+    sym_key = phi::encryption::aesGenKey(128 + (symmode * 64));
+    phi::encryption::aesEncrypt(compressed, sym_key, op.content, op.iv);
+  } else if (symmode == 3) {
+    sym_key = phi::encryption::ccpGenKey();
+    phi::encryption::ccpEncryptText(compressed, sym_key, op.content, op.nonce);
+  }
+
+  if (asymmode == 0 || asymmode == 1) {
+    try {
+      std::string rsa;
+      asymmode == 0 ? rsa = contact.rsa2048 : rsa = contact.rsa4096;
+      op.encrypted_key = phi::encryption::rsaEncrypt(sym_key, rsa);
+      op.symmetric_key_len = sym_key.size();
+    } catch (const CryptoPP::BERDecodeErr& err) {
+      std::cout << RED << "Failed to encrypt message, contact does not have a valid RSA-"
+                << (asymmode == 0 ? "2048" : "4096") << " public key\n"
+                << RST;
+      return false;
+    }
+  } else if (asymmode == 2 || asymmode == 3) {
+    ;  // KYBER
+  }
+
+  return true;
+}
+
+//------------[ Func. Implementation Separator ]------------\\
+
+
+bool phi::decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
+                         const phi::database::message_t& message, std::string& op) {
+  std::string sym_key;
+  if (message.asymmetric == 0 || message.asymmetric == 1) {
+    try {
+      std::string rsa;
+      message.asymmetric == 0 ? rsa = DATABASE->self.rsa2048_priv
+                              : rsa = DATABASE->self.rsa4096_priv;
+      if (!phi::encryption::rsaDecrypt(message.symmetric_key_len, message.encrypted_key, rsa,
+                                       sym_key)) {
+        std::cout << RED << "Failed to decrypt message, your RSA-"
+                  << (message.asymmetric == 0 ? "2048" : "4096")
+                  << " private key will not decrypt the message\n"
+                  << RST;
+        return false;
+      }
+    } catch (const CryptoPP::BERDecodeErr& err) {
+      std::cout << RED << "Failed to decrypt message, you do not have a valid RSA-"
+                << (message.asymmetric == 0 ? "2048" : "4096") << " private key\n"
+                << RST;
+      return false;
+    }
+  } else if (message.asymmetric == 2 || message.asymmetric == 3) {
+    ;  // KYBER
+  }
+
+  std::string compressed;
+  if (message.symmetric >= 0 && message.symmetric < 3) {
+    if (!phi::encryption::aesDecrypt(message.content, sym_key, message.iv, compressed)) {
+      std::cout << RED << "Failed to decrypt message, the given AES-"
+                << (message.symmetric_key_len * 8) << " key will not decrypt the message\n"
+                << RST;
+      return false;
+    }
+  } else if (message.symmetric == 3) {
+    if (!phi::encryption::ccpDecryptText(message.content, sym_key, message.nonce, compressed)) {
+      std::cout << RED
+                << "Failed to decrypt message, the given ChaCha20-Poly1305 key will not decrypt "
+                   "the message\n"
+                << RST;
+      return false;
+    }
+  }
+
+  op = phi::encryption::gzipDecompress(compressed);
+  if (!phi::encryption::blake2bVerifyHash(op, message.hash)) {
+    std::cout << RED
+              << "Message successfully decrypted, however the hash signature does not match, be "
+                 "wary of a tampered message\n"
+              << RST;
+    return true;
+  }
+
+  return true;
 }
