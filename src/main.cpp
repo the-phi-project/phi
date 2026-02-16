@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
   /**** ****/
 
   if (cli_mode) {
-    auto options = phi::createOptions();  // cxxopts::Options
-    return phi::parseArguments(options, argc, argv, DATABASE);
+    auto options = phi::parser::createOptions();  // cxxopts::Options
+    return phi::parser::parseArguments(options, argc, argv, DATABASE);
   }
 
   auto size = phi::ui::getTerminalSize();

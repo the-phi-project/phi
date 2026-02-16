@@ -37,7 +37,7 @@ namespace tmc = termcolor;
 
 //---------> [ Config. Separator ] <---------\\ 
 
-namespace phi {
+namespace phi::parser {
 
 static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
 

@@ -41,7 +41,7 @@ namespace tmc = termcolor;
 
 //---------> [ Config. Separator ] <---------\\ 
 
-int phi::parseArguments(cxxopts::Options& options, int argc, char** argv,
+int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv,
                         const std::shared_ptr<phi::database::Database>& DATABASE) {
   try {
     auto result = options.parse(argc, argv);
@@ -261,7 +261,7 @@ int phi::parseArguments(cxxopts::Options& options, int argc, char** argv,
 //------------[ Func. Implementation Separator ]------------\\ 
 
 
-bool phi::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
+bool phi::parser::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
                          const std::string& message, int symmode, int asymmode,
                          phi::database::message_t& op) {
   //
@@ -311,7 +311,7 @@ bool phi::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABAS
 //------------[ Func. Implementation Separator ]------------\\
 
 
-bool phi::decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
+bool phi::parser::decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
                          const phi::database::message_t& message, std::string& op) {
   std::string sym_key;
   if (message.asymmetric == 0 || message.asymmetric == 1) {
