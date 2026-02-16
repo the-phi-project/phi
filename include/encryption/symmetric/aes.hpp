@@ -32,15 +32,15 @@ Generate a public/private key
 
 size is either 128, 192, or 256
 */
-void aesGenKey(int size, std::string& op_key, std::string& op_iv);
+std::string aesGenKey(int size);
 
 //================={ Header Item Separator }=================\\ 
 
 /*
 Encrypt a std::string using an AES key
 */
-std::string aesEncrypt(const std::string& str, const std::string& aes_key,
-                       const std::string& aes_iv);
+void aesEncrypt(const std::string& str, const std::string& aes_key, std::string& encrypted,
+                std::string& aes_iv);
 
 //================={ Header Item Separator }=================\\ 
 

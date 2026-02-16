@@ -45,7 +45,7 @@
   CryptoPP::word64 size = encoder.MaxRetrievable();
   if (size > 0) {
     opt.resize(size);
-    encoder.Get(reinterpret_cast<unsigned char*>(opt.data()), size - 1);
+    encoder.Get(reinterpret_cast<unsigned char*>(opt.data()), size);
   }
 
   return opt;
@@ -73,7 +73,7 @@
 
 [[nodiscard]] static std::string vecStrToStr(const std::vector<std::string>& vec) {
   std::string opt = "[";
-  for (int i = 0; i < vec.size() - 1; i++) {
+  for (size_t i = 0; i < vec.size() - 1; i++) {
     opt += vec[i] + ", ";
   }
 

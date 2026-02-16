@@ -14,6 +14,7 @@
 #define RSA_HPP
 
 #include <string>
+#include <iostream>
 
 #include <cryptopp/queue.h>
 #include <cryptopp/rsa.h>
@@ -76,6 +77,7 @@ static KeyType rsaFromStr(const std::string& key) {
 
   bqu.Put(reinterpret_cast<const unsigned char*>(key.data()), key.size());
   bqu.MessageEnd();
+  bqu.Skip(0);
 
   KeyType output;
   output.Load(bqu);

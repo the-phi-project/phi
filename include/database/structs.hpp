@@ -35,10 +35,6 @@ struct self_t {
     std::string kyber512_priv;
     std::string kyber768_pub;
     std::string kyber768_priv;
-    std::string aes128;
-    std::string aes192;
-    std::string aes256;
-    std::string chacha20_poly1305;
 
     std::unordered_map<std::string, std::string*> MAP;
 
@@ -51,37 +47,7 @@ struct self_t {
       this->MAP["kyber512_priv"] = &this->kyber512_priv;
       this->MAP["kyber768_pub"] = &this->kyber768_pub;
       this->MAP["kyber768_priv"] = &this->kyber768_priv;
-      this->MAP["aes128"] = &this->aes128;
-      this->MAP["aes192"] = &this->aes192;
-      this->MAP["aes256"] = &this->aes256;
-      this->MAP["chacha20_poly1305"] = &this->chacha20_poly1305;
     }
-
-    //=====[ Declaration Separator ]=====\\ 
-
-    /*
-    std::string to_json_str() const {
-      json j;
-
-      for (const auto& [field, ptr] : this->MAP) {
-        j[field] = toB64(*ptr);
-      }
-
-      return j.dump();
-    }
-
-    bool from_json_str(const std::string& json_str) {
-      if (!json::accept(json_str)) return false;
-
-      json j = json::parse(json_str);
-
-      for (const auto& [field, ptr] : this->MAP) {
-        *ptr = fromB64(j[field].get<std::string>());
-      }
-
-      return true;
-    }
-    */
 };
 
 //================={ Header Item Separator }=================\\ 
@@ -106,43 +72,7 @@ struct contact_t {
 
     //=====[ Declaration Separator ]=====\\ 
 
-    /*
-    std::string to_json_str() const {
-      json j;
-
-      for (const auto& [field, ptr] : this->MAP) {
-        if (field == "name") {
-          j[field] = *ptr;
-          continue;
-        }
-        j[field] = toB64(*ptr);
-      }
-
-      j["id"] = this->id;
-
-      return j.dump();
-    }
-
-    bool from_json_str(const std::string& json_str) {
-      if (!json::accept(json_str)) return false;
-
-      json j = json::parse(json_str);
-
-      for (const auto& [field, ptr] : this->MAP) {
-        if (field == "name") {
-          *ptr = j[field].get<std::string>();
-          continue;
-        }
-        *ptr = fromB64(j[field].get<std::string>());
-      }
-
-      this->id = j["id"].get<int>();
-
-      return true;
-    }
-    */
-
-    std::unordered_map<std::string, std::string> getUpdatedFields(self_t& updated) {
+    /*std::unordered_map<std::string, std::string> getUpdatedFields(self_t& updated) {
       std::unordered_map<std::string, std::string> fields;
 
       for (const auto& [field, ptr] : this->MAP) {
@@ -152,13 +82,13 @@ struct contact_t {
       }
 
       return fields;
-    }
+    }*/
 };
 
 //================={ Header Item Separator }=================\\ 
 
 struct message_t {
-    int content_len;
+    int symmetric_key_len;
     std::string content;
     std::string hash;
     std::string nonce;  // empty if not using ChaCha20-Poly1305
@@ -172,7 +102,7 @@ struct message_t {
     std::string to_json_str() const {
       json j;
 
-      j["content_len"] = this->content_len;
+      j["symmetric_key_len"] = this->symmetric_key_len;
       j["content"] = toB64(this->content);
       j["hash"] = toB64(this->hash);
       j["nonce"] = toB64(this->nonce);
@@ -189,7 +119,7 @@ struct message_t {
 
       json j = json::parse(json_str);
 
-      this->content_len = j["content_len"].get<int>();
+      this->symmetric_key_len = j["symmetric_key_len"].get<int>();
       this->content = fromB64(j["content"].get<std::string>());
       this->hash = fromB64(j["hash"].get<std::string>());
       this->nonce = fromB64(j["nonce"].get<std::string>());
