@@ -47,7 +47,11 @@ int phi::parseArguments(cxxopts::Options& options, int argc, char** argv,
     auto result = options.parse(argc, argv);
 
     if (result.contains("help")) {
-      std::cout << options.help() << "\n";
+      std::cout << "Use the command `" << ITL << "man phi" << RST << "` to access the man page.\n"
+                << "If that fails or is outdated, download the man page at this link `" << ITL
+                << "https://github.com/the-phi-project/phi/blob/main/documentation/phi.1" << RST
+                << "` then\nmove it into wherever your OS keeps manpages."
+                << "\n";
       return 0;
     }
     if (result.contains("list-contacts")) {

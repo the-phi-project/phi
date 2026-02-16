@@ -51,9 +51,6 @@ static cxxopts::Options createOptions() {
 https://github.com/the-phi-project/phi
 )desc");
 
-  options.custom_help(
-    R"help([MODE] [FILE or B64 STR] [--asymmetric TYPE] [--symmetric TYPE] [--contact-id ID] [FILE?])help");
-
   /*
   The stuff below is called method chaining. The original call to `add_options()` returns
   an object which is then called to add an option so when the parentheses are chained
