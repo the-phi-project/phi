@@ -91,9 +91,8 @@ struct message_t {
     int symmetric_key_len;
     std::string content;
     std::string hash;
-    std::string nonce;  // empty if not using ChaCha20-Poly1305
     std::string encrypted_key;
-    std::string iv;  // empty if not using AES
+    std::string additional_data;  // ChaCha20-Poly1305 nonce, AES IV, KYBER ciphertext
     int symmetric;
     int asymmetric;
 
@@ -105,9 +104,8 @@ struct message_t {
       j["symmetric_key_len"] = this->symmetric_key_len;
       j["content"] = toB64(this->content);
       j["hash"] = toB64(this->hash);
-      j["nonce"] = toB64(this->nonce);
       j["encrypted_key"] = toB64(this->encrypted_key);
-      j["iv"] = toB64(this->iv);
+      j["additional_data"] = toB64(this->additional_data);
       j["symmetric"] = this->symmetric;
       j["asymmetric"] = this->asymmetric;
 
@@ -122,9 +120,8 @@ struct message_t {
       this->symmetric_key_len = j["symmetric_key_len"].get<int>();
       this->content = fromB64(j["content"].get<std::string>());
       this->hash = fromB64(j["hash"].get<std::string>());
-      this->nonce = fromB64(j["nonce"].get<std::string>());
       this->encrypted_key = fromB64(j["encrypted_key"].get<std::string>());
-      this->iv = fromB64(j["iv"].get<std::string>());
+      this->additional_data = fromB64(j["additional_data"].get<std::string>());
       this->symmetric = j["symmetric"].get<int>();
       this->asymmetric = j["asymmetric"].get<int>();
 

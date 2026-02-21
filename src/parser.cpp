@@ -42,7 +42,7 @@ namespace tmc = termcolor;
 //---------> [ Config. Separator ] <---------\\ 
 
 int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv,
-                        const std::shared_ptr<phi::database::Database>& DATABASE) {
+                                const std::shared_ptr<phi::database::Database>& DATABASE) {
   try {
     auto result = options.parse(argc, argv);
 
@@ -91,14 +91,14 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
         std::string sym = result["symmetric"].as<std::string>();
         std::string asym = result["asymmetric"].as<std::string>();
 
-        for (size_t i = 0; i < phi::symtypes.size(); i++) {
-          if (phi::symtypes.at(i) == sym) {
+        for (size_t i = 0; i < phi::parser::symtypes.size(); i++) {
+          if (phi::parser::symtypes.at(i) == sym) {
             symmode = i;
             break;
           }
         }
-        for (size_t i = 0; i < phi::asymtypes.size(); i++) {
-          if (phi::asymtypes.at(i) == asym) {
+        for (size_t i = 0; i < phi::parser::asymtypes.size(); i++) {
+          if (phi::parser::asymtypes.at(i) == asym) {
             asymmode = i;
             break;
           }
@@ -112,13 +112,13 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
       }
       if (symmode == -1) {
         std::cout << RED << "Invalid symmetric mode of encryption, options are `" << ITL
-                  << vecStrToStr(phi::symtypes) << RST << RED << "`\n"
+                  << vecStrToStr(phi::parser::symtypes) << RST << RED << "`\n"
                   << RST;
         return 3;
       }
       if (asymmode == -1) {
         std::cout << RED << "Invalid asymmetric mode of encryption, options are `" << ITL
-                  << vecStrToStr(phi::asymtypes) << RST << RED << "`\n"
+                  << vecStrToStr(phi::parser::asymtypes) << RST << RED << "`\n"
                   << RST;
         return 3;
       }
@@ -153,7 +153,7 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
       \*######## IN-SEPARATOR ##########*/
 
       phi::database::message_t output{};
-      if (!phi::encryptMessage(DATABASE, contact_id, in_msg, symmode, asymmode, output)) {
+      if (!phi::parser::encryptMessage(DATABASE, contact_id, in_msg, symmode, asymmode, output)) {
         std::cout << tmc::bright_red << BOLD << "ENCRYPTION FAILED.\n" << RST;
         return 5;
       }
@@ -218,7 +218,7 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
       \*######## IN-SEPARATOR ##########*/
 
       std::string decrypted;
-      if (!phi::decryptMessage(DATABASE, message, decrypted)) {
+      if (!phi::parser::decryptMessage(DATABASE, message, decrypted)) {
         std::cout << tmc::bright_red << BOLD << "DECRYPTION FAILED.\n" << RST;
         return 5;
       }
@@ -261,9 +261,9 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
 //------------[ Func. Implementation Separator ]------------\\ 
 
 
-bool phi::parser::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
-                         const std::string& message, int symmode, int asymmode,
-                         phi::database::message_t& op) {
+bool phi::parser::encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
+                                 int contact_id, const std::string& message, int symmode,
+                                 int asymmode, phi::database::message_t& op) {
   //
   op.symmetric = symmode;
   op.asymmetric = asymmode;
@@ -283,10 +283,10 @@ bool phi::parser::encryptMessage(const std::shared_ptr<phi::database::Database>&
   if (symmode >= 0 && symmode < 3) {
     // if symmode is 0 this evals to 128, if symmode is 1 it evals to 192, if 2 its 256
     sym_key = phi::encryption::aesGenKey(128 + (symmode * 64));
-    phi::encryption::aesEncrypt(compressed, sym_key, op.content, op.iv);
+    phi::encryption::aesEncrypt(compressed, sym_key, op.content, op.additional_data);
   } else if (symmode == 3) {
     sym_key = phi::encryption::ccpGenKey();
-    phi::encryption::ccpEncryptText(compressed, sym_key, op.content, op.nonce);
+    phi::encryption::ccpEncryptText(compressed, sym_key, op.content, op.additional_data);
   }
 
   if (asymmode == 0 || asymmode == 1) {
@@ -312,7 +312,7 @@ bool phi::parser::encryptMessage(const std::shared_ptr<phi::database::Database>&
 
 
 bool phi::parser::decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
-                         const phi::database::message_t& message, std::string& op) {
+                                 const phi::database::message_t& message, std::string& op) {
   std::string sym_key;
   if (message.asymmetric == 0 || message.asymmetric == 1) {
     try {
@@ -339,14 +339,16 @@ bool phi::parser::decryptMessage(const std::shared_ptr<phi::database::Database>&
 
   std::string compressed;
   if (message.symmetric >= 0 && message.symmetric < 3) {
-    if (!phi::encryption::aesDecrypt(message.content, sym_key, message.iv, compressed)) {
+    if (!phi::encryption::aesDecrypt(message.content, sym_key, message.additional_data,
+                                     compressed)) {
       std::cout << RED << "Failed to decrypt message, the given AES-"
                 << (message.symmetric_key_len * 8) << " key will not decrypt the message\n"
                 << RST;
       return false;
     }
   } else if (message.symmetric == 3) {
-    if (!phi::encryption::ccpDecryptText(message.content, sym_key, message.nonce, compressed)) {
+    if (!phi::encryption::ccpDecryptText(message.content, sym_key, message.additional_data,
+                                         compressed)) {
       std::cout << RED
                 << "Failed to decrypt message, the given ChaCha20-Poly1305 key will not decrypt "
                    "the message\n"

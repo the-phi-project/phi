@@ -24,10 +24,8 @@ phi.exe
 !/phid/
 phid.exe
 
-test.c
-test.cpp
-test
-test.py
+tests/msg.txt
+tests/decrypted.txt
 
 .DS_Store
 

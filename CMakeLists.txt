@@ -1,7 +1,7 @@
 # CONFIGURATION
 cmake_minimum_required(VERSION 3.24...4.1.2)
 project(PHI
-    VERSION 0.3.1
+    VERSION 0.3.2
     LANGUAGES C CXX
 )
 
@@ -16,7 +16,7 @@ if(APPLE)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 #
@@ -58,7 +58,15 @@ FetchContent_Declare(SQLiteCpp
 set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
 set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(ftxui cryptopp-cmake Sodium SQLiteCpp)
+FetchContent_Declare(
+  ml-kem
+  GIT_REPOSITORY https://github.com/itzmeanjan/ml-kem.git
+  GIT_TAG master
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(ml-kem)
+
+FetchContent_MakeAvailable(ftxui cryptopp-cmake Sodium SQLiteCpp ml-kem)
 
 if(TARGET cryptopp)
     get_target_property(CRYPTOPP_INCLUDE_DIRS cryptopp INTERFACE_INCLUDE_DIRECTORIES)
@@ -87,6 +95,7 @@ target_link_libraries(phi
         ftxui::screen
         ftxui::dom
         ftxui::component
+        ml-kem
 )
 
 target_link_directories(phi

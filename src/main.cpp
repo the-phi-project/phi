@@ -1,3 +1,4 @@
+// TODO: AES-192 not working
 /*
 
   PHI
@@ -20,15 +21,12 @@
 #include "ui/Manager.hpp"
 #include "parser.hpp"
 #include "utils/file_utils.hpp"
-#include "utils/str_utils.hpp"
 
 #define RESET_TERM "\x1b[2J\x1b[H"
 
 namespace tmc = termcolor;
 
 int main(int argc, char** argv) {
-  bool cli_mode = (argc > 1);
-
   /**** GLOBAL CONFIG ****/
 
   int erc = 0;
@@ -53,7 +51,7 @@ int main(int argc, char** argv) {
 
   /**** ****/
 
-  if (cli_mode) {
+  if (argc > 1) {
     auto options = phi::parser::createOptions();  // cxxopts::Options
     return phi::parser::parseArguments(options, argc, argv, DATABASE);
   }
