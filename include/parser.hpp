@@ -39,9 +39,10 @@ namespace tmc = termcolor;
 
 namespace phi::parser {
 
-static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
+// static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
 
-static const std::vector<std::string> symtypes{"aes128", "aes192", "aes256", "chacha20_poly1305"};
+// static const std::vector<std::string> symtypes{"aes128", "aes192", "aes256",
+// "chacha20_poly1305"};
 
 //=====[ Declaration Separator ]=====\\ 
 
@@ -56,29 +57,21 @@ https://github.com/the-phi-project/phi
   an object which is then called to add an option so when the parentheses are chained
   together it calls the function multiple times and adds mutliple options
   */
-  options.add_options()("h,help", "Open the help menu")                  //
-    ("list-contacts", "Print all contacts in the format `(id) name`\n")  //
-    ("encrypt", "Enter encryption MODE for a message")                   //
-    ("decrypt", "Enter decryption MODE for a message\n")                 //
-    ("in-file",
-     "(OPTIONAL, default stdin) Input FILEpath to encrypt/decrypt (encrypted must be base64)",
+  options.add_options()("h,help", "Open the help menu")  //
+    ("list-contacts", "")                                //
+    ("e,encrypt", "")                                    //
+    ("d,decrypt", "")                                    //
+    ("i,in-file", "",
      cxxopts::value<std::string>())  //
-    ("str",
-     "(OPTIONAL) If not using an input file, the encrypted message or message to encrypt goes "
-     "here",
+    ("s,str", "",
      cxxopts::value<std::string>())  //
-    ("out-file", "(OPTIONAL, default stdout) Output FILEpath for encrypted/decrypted message\n",
+    ("o,out-file", "",
      cxxopts::value<std::string>())  //
-    ("asymmetric",
-     "(Not necessary for decrypt mode) TYPE of asymmetric encryption, any {rsa2048, rsa4096, "
-     "kyber512, kyber768}",
+    ("a,asymmetric", "",
      cxxopts::value<std::string>())  //
-    ("symmetric",
-     "(Not necessary for decrypt mode) TYPE of symmetric encryption, any {aes128, aes192, "
-     "aes256, "
-     "chacha20_poly1305}\n",
+    ("s,symmetric", "",
      cxxopts::value<std::string>())  //
-    ("contact-id", "Which contact's keys to use, by ID", cxxopts::value<int>());
+    ("c,contact-id", "", cxxopts::value<int>());
 
   return options;
 }
@@ -90,17 +83,7 @@ int parseArguments(cxxopts::Options& options, int argc, char** argv,
 
 //================={ Header Item Separator }=================\\ 
 
-bool encryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE, int contact_id,
-                    const std::string& message, int symmode, int asymmode,
-                    phi::database::message_t& op);
-
-
-//================={ Header Item Separator }=================\\ 
-
-bool decryptMessage(const std::shared_ptr<phi::database::Database>& DATABASE,
-                    const phi::database::message_t& message, std::string& op);
-
-}  // namespace phi
+}  // namespace phi::parser
 
 
 #endif /* PARSER_HPP */
