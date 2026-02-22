@@ -33,14 +33,14 @@ std::string phi::encryption::aesGenKey(int size) {
   CryptoPP::SecByteBlock key(size / 8);
   rng.GenerateBlock(key, key.size());
 
-  return phi::encryption::aesToStr(key);
+  return phi::encryption::byteblockToStr(key);
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
 void phi::encryption::aesEncrypt(const std::string& str, const std::string& aes_key,
                                  std::string& encrypted, std::string& aes_iv) {
-  CryptoPP::SecByteBlock key = phi::encryption::aesFromStr(aes_key);
+  CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(aes_key);
 
   CryptoPP::AutoSeededRandomPool rng;
   std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
@@ -61,7 +61,7 @@ void phi::encryption::aesEncrypt(const std::string& str, const std::string& aes_
 bool phi::encryption::aesDecrypt(const std::string& str, const std::string& aes_key,
                                  const std::string& aes_iv, std::string& op_text) {
   try {
-    CryptoPP::SecByteBlock key = phi::encryption::aesFromStr(aes_key);
+    CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(aes_key);
 
     std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
     const size_t copy_len = std::min(aes_iv.size(), iv.size());
