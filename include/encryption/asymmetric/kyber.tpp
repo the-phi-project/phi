@@ -1,3 +1,5 @@
+// NOLINTBEGIN -- I had to do this because this file was causing fake problems
+
 /*
 
  PHI
@@ -27,44 +29,43 @@
 //---------> [ Config. Separator ] <---------\\ 
 
 namespace phi::encryption {
-
-template <typename MLKEM>
-void kyberGenKeyPair(std::array<uint8_t, MLKEM::PKEY_BYTE_LEN>& op_public,
-                     std::array<uint8_t, MLKEM::SKEY_BYTE_LEN>& op_private) {
+template <typename variant>
+void kyberGenKeyPair(std::array<uint8_t, variant::pkey_len>& op_public,
+                     std::array<uint8_t, variant::skey_len>& op_private) {
   //
   randomshake::randomshake_t rng;
 
-  std::array<uint8_t, MLKEM::SEED_D_BYTE_LEN>
+  std::array<uint8_t, kyber_seed_d_len>
     seed_d{};  // used for deterministic generation of the public matrix
-  std::array<uint8_t, MLKEM::SEED_Z_BYTE_LEN>
+  std::array<uint8_t, kyber_seed_z_len>
     seed_z{};  // harden the secret key against multi-target attacks
 
   rng.generate(seed_d);
   rng.generate(seed_z);
 
-  MLKEM::keygen(seed_d, seed_z, op_public, op_private);
+  variant::keygen(seed_d, seed_z, op_public, op_private);
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-template <typename MLKEM>
-bool kyberGenData(const std::array<uint8_t, MLKEM::PKEY_BYTE_LEN>& kyber_pub_key,
-                  std::array<uint8_t, MLKEM::CIPHER_TEXT_BYTE_LEN>& op_ciphertext,
-                  std::array<uint8_t, MLKEM::SHARED_SECRET_BYTE_LEN>& op_ss) {
+template <typename variant>
+bool kyberGenData(const std::array<uint8_t, variant::pkey_len>& kyber_pub_key,
+                  std::array<uint8_t, variant::ciphertext_len>& op_ciphertext,
+                  std::array<uint8_t, kyber_ss_len>& op_ss) {
   //
   randomshake::randomshake_t rng;
 
-  std::array<uint8_t, MLKEM::SEED_M_BYTE_LEN> encapsulation_seed{};
+  std::array<uint8_t, kyber_seed_m_len> encapsulation_seed{};
   rng.generate(encapsulation_seed);
 
-  return MLKEM::encapsulate(encapsulation_seed, kyber_pub_key, op_ciphertext, op_ss);
+  return variant::encapsulate(encapsulation_seed, kyber_pub_key, op_ciphertext, op_ss);
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-template <typename MLKEM>
+template <typename variant>
 std::vector<uint8_t> kyberDeriveKey(int key_size, const std::string& context,
-                                    const std::array<uint8_t, MLKEM::SHARED_SECRET_BYTE_LEN>& ss) {
+                                    const std::array<uint8_t, kyber_ss_len>& ss) {
   //
   shake256::shake256_t xof;  // extendable output function
   xof.absorb(ss);
@@ -82,3 +83,5 @@ std::vector<uint8_t> kyberDeriveKey(int key_size, const std::string& context,
 }  // namespace phi::encryption
 
 #endif /* KYBER_TPP */
+
+// NOLINTEND

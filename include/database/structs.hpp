@@ -92,7 +92,7 @@ struct message_t {
     std::string content;
     std::string hash;
     std::string encrypted_key;
-    std::string additional_data;  // ChaCha20-Poly1305 nonce, AES IV, KYBER ciphertext
+    std::string additional_data;  // ChaCha20-Poly1305 nonce, AES/Twofish IV, KYBER ciphertext
     int symmetric;
     int asymmetric;
 

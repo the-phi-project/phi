@@ -18,9 +18,11 @@
 #include <string>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 #include "ml_kem/ml_kem_512.hpp"
 #include "ml_kem/ml_kem_768.hpp"
+#include "ml_kem/ml_kem_1024.hpp"
 #include "randomshake/randomshake.hpp"
 #include "sha3/shake256.hpp"
 
@@ -28,14 +30,50 @@
 
 namespace phi::encryption {
 
+// all of the following are the same for all variants
+static constexpr size_t kyber_seed_d_len = ml_kem_512::SEED_D_BYTE_LEN;
+static constexpr size_t kyber_seed_z_len = ml_kem_512::SEED_Z_BYTE_LEN;
+static constexpr size_t kyber_seed_m_len = ml_kem_512::SEED_M_BYTE_LEN;
+static constexpr size_t kyber_ss_len = ml_kem_512::SHARED_SECRET_BYTE_LEN;
+
+template <size_t L>
+struct KyberVariant;
+// god I love that C++20 will just define the arguments for me, I really am spoilt
+#define DEFINE_KYBER_VARIANT(LEVEL, NS)                                  \
+  template <>                                                            \
+  struct KyberVariant<LEVEL> {                                           \
+      static constexpr size_t pkey_len = NS::PKEY_BYTE_LEN;              \
+      static constexpr size_t skey_len = NS::SKEY_BYTE_LEN;              \
+      static constexpr size_t ciphertext_len = NS::CIPHER_TEXT_BYTE_LEN; \
+                                                                         \
+      static auto keygen(auto&&... args) {                               \
+        return NS::keygen(std::forward<decltype(args)>(args)...);        \
+      }                                                                  \
+                                                                         \
+      static auto encapsulate(auto&&... args) {                          \
+        return NS::encapsulate(std::forward<decltype(args)>(args)...);   \
+      }                                                                  \
+                                                                         \
+      static auto decapsulate(auto&&... args) {                          \
+        return NS::decapsulate(std::forward<decltype(args)>(args)...);   \
+      }                                                                  \
+  };
+
+DEFINE_KYBER_VARIANT(512, ml_kem_512)
+DEFINE_KYBER_VARIANT(768, ml_kem_768)
+DEFINE_KYBER_VARIANT(1024, ml_kem_1024)
+#undef DEFINE_KYBER_VARIANT
+
+//=====[ Declaration Separator ]=====\\ 
+
 /*
 Generate a public/private KYBER key pair
 
-template type should be either ml_kem_512 or ml_kem_768
+template is phi::encryption::kyber512/768/1024
 */
-template <typename MLKEM>
-void kyberGenKeyPair(std::array<uint8_t, MLKEM::PKEY_BYTE_LEN>& op_public,
-                     std::array<uint8_t, MLKEM::SKEY_BYTE_LEN>& op_private);
+template <typename variant>
+void kyberGenKeyPair(std::array<uint8_t, variant::pkey_len>& op_public,
+                     std::array<uint8_t, variant::skey_len>& op_private);
 
 //================={ Header Item Separator }=================\\ 
 
@@ -49,10 +87,10 @@ The shared secret should be derived into a symmetric key
 
 template type should be either ml_kem_512 or ml_kem_768
 */
-template <typename MLKEM>
-bool kyberGenData(const std::array<uint8_t, MLKEM::PKEY_BYTE_LEN>& kyber_pub_key,
-                  std::array<uint8_t, MLKEM::CIPHER_TEXT_BYTE_LEN>& op_ciphertext,
-                  std::array<uint8_t, MLKEM::SHARED_SECRET_BYTE_LEN>& op_ss);
+template <typename variant>
+bool kyberGenData(const std::array<uint8_t, variant::pkey_len>& kyber_pub_key,
+                  std::array<uint8_t, variant::ciphertext_len>& op_ciphertext,
+                  std::array<uint8_t, kyber_ss_len>& op_ss);
 
 //================={ Header Item Separator }=================\\ 
 
@@ -70,12 +108,12 @@ Derive from a ciphertext using a KYBER private
 
 template type should be either ml_kem_512 or ml_kem_768
 */
-template <typename MLKEM>
-forceinline void kyberDeriveSS(const std::array<uint8_t, MLKEM::CIPHER_TEXT_BYTE_LEN>& ciphertext,
-                               const std::array<uint8_t, MLKEM::SKEY_BYTE_LEN>& kyber_priv_key,
-                               std::array<uint8_t, MLKEM::SHARED_SECRET_BYTE_LEN>& op_ss) {
+template <typename variant>
+forceinline void kyberDeriveSS(const std::array<uint8_t, variant::ciphertext_len>& ciphertext,
+                               const std::array<uint8_t, variant::skey_len>& kyber_priv_key,
+                               std::array<uint8_t, kyber_ss_len>& op_ss) {
   //
-  ml_kem_512::decapsulate(kyber_priv_key, ciphertext, op_ss);
+  variant::decapsulate(kyber_priv_key, ciphertext, op_ss);
 }
 
 //================={ Header Item Separator }=================\\ 
@@ -90,12 +128,12 @@ Info should be a string that describes the algorithm
 
 template type should be either ml_kem_512 or ml_kem_768
 */
-template <typename MLKEM>
+template <typename variant>
 std::vector<uint8_t> kyberDeriveKey(int key_size, const std::string& context,
-                                    const std::array<uint8_t, MLKEM::SHARED_SECRET_BYTE_LEN>& ss);
+                                    const std::array<uint8_t, kyber_ss_len>& ss);
 
-
-#include "encryption/asymmetric/kyber.tpp"  // where all of these template functions are implemented
 }  // namespace phi::encryption
+
+#include "encryption/asymmetric/kyber.tpp"  // NOLINT where all of these template functions are implemented
 
 #endif /* KYBER_HPP */
