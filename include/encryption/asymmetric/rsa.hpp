@@ -14,7 +14,6 @@
 #define RSA_HPP
 
 #include <string>
-#include <iostream>
 
 #include <cryptopp/queue.h>
 #include <cryptopp/rsa.h>

@@ -31,8 +31,8 @@ std::string phi::encryption::ccpGenKey() {
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-void phi::encryption::ccpEncryptText(const std::string& text, const std::string& ccp_key, std::string& op_content,
-                    std::string& op_nonce) {
+void phi::encryption::ccpEncryptText(const std::string& text, const std::string& ccp_key,
+                                     std::string& op_content, std::string& op_nonce) {
   std::array<unsigned char, crypto_aead_chacha20poly1305_NPUBBYTES> nonce{};
   unsigned long long outlen = text.length() + crypto_aead_chacha20poly1305_ABYTES;
   std::vector<unsigned char> cipher(outlen);  // ciphertext
@@ -60,7 +60,7 @@ void phi::encryption::ccpEncryptText(const std::string& text, const std::string&
 //------------[ Func. Implementation Separator ]------------\\ 
 
 bool phi::encryption::ccpDecryptText(const std::string& enc_text, const std::string& ccp_key,
-                    const std::string& ccp_nonce, std::string& op_text) {
+                                     const std::string& ccp_nonce, std::string& op_text) {
   unsigned long long outlen = enc_text.size() - crypto_aead_chacha20poly1305_ABYTES;
   std::vector<unsigned char> text(outlen);
 

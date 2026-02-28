@@ -47,14 +47,9 @@ phi::database::Database::Database() {
   if (!getSelf.executeStep()) {
     this->createSelf();
   } else {
-    this->self.rsa2048_priv = fromB64(getSelf.getColumn("rsa2048_priv").getString());
-    this->self.rsa2048_pub = fromB64(getSelf.getColumn("rsa2048_pub").getString());
-    this->self.rsa4096_priv = fromB64(getSelf.getColumn("rsa4096_priv").getString());
-    this->self.rsa4096_pub = fromB64(getSelf.getColumn("rsa4096_pub").getString());
-    this->self.kyber512_pub = fromB64(getSelf.getColumn("kyber512_pub").getString());
-    this->self.kyber512_priv = fromB64(getSelf.getColumn("kyber512_priv").getString());
-    this->self.kyber768_pub = fromB64(getSelf.getColumn("kyber768_pub").getString());
-    this->self.kyber768_priv = fromB64(getSelf.getColumn("kyber768_priv").getString());
+    for (const auto& [field, ptr] : this->self.MAP) {
+      *ptr = fromB64(getSelf.getColumn(field.data()).getString());  // no string, only const char*
+    }
   }
 }
 
@@ -72,7 +67,11 @@ void phi::database::Database::createTables() {
         kyber512_pub TEXT,
         kyber512_priv TEXT,
         kyber768_pub TEXT,
-        kyber768_priv TEXT
+        kyber768_priv TEXT,
+        kyber1024_pub TEXT,
+        kyber1024_priv TEXT,
+        ed25519_pub TEXT,
+        ed25519_priv TEXT
       );
 
       CREATE TABLE IF NOT EXISTS contacts (
@@ -82,6 +81,8 @@ void phi::database::Database::createTables() {
         rsa4096 TEXT,
         kyber512 TEXT,
         kyber768 TEXT,
+        kyber1024 TEXT,
+        ed25519 TEXT,
         UNIQUE(name)
       );
     )sql");
@@ -176,11 +177,13 @@ bool phi::database::Database::getContact(int contact_id, phi::database::contact_
   }
 
   op.id = contact_id;
-  op.name = query.getColumn("name").getString();
-  op.rsa2048 = fromB64(query.getColumn("rsa2048").getString());
-  op.rsa4096 = fromB64(query.getColumn("rsa4096").getString());
-  op.kyber512 = fromB64(query.getColumn("kyber512").getString());
-  op.kyber768 = fromB64(query.getColumn("kyber768").getString());
+  for (const auto& [field, ptr] : op.MAP) {
+    if (field == "name") {
+      op.name = query.getColumn("name").getString();
+      continue;
+    }
+    *ptr = fromB64(query.getColumn(field.data()).getString());
+  }
 
   return true;
 }

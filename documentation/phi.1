@@ -22,40 +22,40 @@ However, in CLI mode it can only encrypt and decrypt messages based on contacts 
 
 .SH OPTIONS (CLI Mode)
 
-.B "--help  "
+.B "-h, --help  "
 Tells you to open this manpage
 
 .B "--list-contacts  "
 Use only this argument and no others to produce a list of contacts in the format `(ID) name`
 
-.B "--encrypt  "
+.B "-e, --encrypt  "
 Start encryption mode for the following arguments
 
-.B "--decrypt  "
+.B "-d, --decrypt  "
 Start decryption mode for the following arguments
 
-.BI --in-file " filepath  "
+.BI "-i, --in-file" " filepath  "
 Take input from the file located at
 .I filepath
 .B " (Required UNLESS using the --str argument seen below)"
 
-.BI "--str " \&"content\&"
+.BI "-s, --str" " \&"content\&"
 .BR "" "  Use"
 ." ^this^ is for adding the two space buffer
 .I content
 as its input
 .B " (Required UNLESS using the --in-file argument seen above)"
 
-.BI --out-file " filepath  "
+.BI "-o, --out-file" " filepath  "
 Spit the output into the file located at
 .I filepath
 .B " (Not required, prints to the console by default)"
 
-.BI --symmetric " mode  "
-Mode of symmetric encryption: aes128, aes192, aes256, chacha20_poly1305
+.BI "-s, --symmetric" " mode  "
+Mode of symmetric encryption: aes128, aes192, aes256, twofish256, chacha20_poly1305
 
-.BI --asymmetric " mode  "
-Mode of asymmetric encryption: rsa2048, rsa4096, kyber512, kyber768
+.BI "-a, --asymmetric" " mode  "
+Mode of asymmetric encryption: rsa2048, rsa4096, kyber512, kyber768, kyber1024
 
 
 .SH FILES

@@ -10,7 +10,7 @@
 
 */
 
-#include "encryption/symmetric/aes.hpp"
+#include "encryption/symmetric/twofish.hpp"
 
 #include <string>
 #include <array>
@@ -24,13 +24,13 @@
 #include <cryptopp/gcm.h>
 #include <cryptopp/filters.h>
 
-#define TAG_SIZE 12
+constexpr int TAG_SIZE = 12;
 
 //---------> [ Config. Separator ] <---------\\ 
 
-std::string phi::encryption::aesGenKey(int size) {
+std::string phi::encryption::twofishGenKey() {
   CryptoPP::AutoSeededRandomPool rng;
-  CryptoPP::SecByteBlock key(size / 8);
+  CryptoPP::SecByteBlock key(32);  // maybe in the future we'll allow 128 and 192
   rng.GenerateBlock(key, key.size());
 
   return phi::encryption::byteblockToStr(key);
@@ -38,36 +38,36 @@ std::string phi::encryption::aesGenKey(int size) {
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-void phi::encryption::aesEncrypt(const std::string& str, const std::string& aes_key,
-                                 std::string& encrypted, std::string& aes_iv) {
-  CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(aes_key);
+void phi::encryption::twofishEncrypt(const std::string& str, const std::string& twofish_key,
+                                     std::string& encrypted, std::string& twofish_iv) {
+  CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(twofish_key);
 
   CryptoPP::AutoSeededRandomPool rng;
-  std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
+  std::array<unsigned char, CryptoPP::Twofish::BLOCKSIZE> iv{};
   rng.GenerateBlock(iv.data(), iv.size());
 
-  CryptoPP::GCM<CryptoPP::AES>::Encryption enc;
+  CryptoPP::GCM<CryptoPP::Twofish>::Encryption enc;
   enc.SetKeyWithIV(key, key.size(), iv.data(), iv.size());
 
   CryptoPP::StringSource css(str, true,
                              new CryptoPP::AuthenticatedEncryptionFilter(
                                enc, new CryptoPP::StringSink(encrypted), false, TAG_SIZE));
 
-  aes_iv = std::string(reinterpret_cast<const char*>(iv.data()), iv.size());
+  twofish_iv = std::string(reinterpret_cast<const char*>(iv.data()), iv.size());
 }
 
 //------------[ Func. Implementation Separator ]------------\\ 
 
-bool phi::encryption::aesDecrypt(const std::string& str, const std::string& aes_key,
-                                 const std::string& aes_iv, std::string& op_text) {
+bool phi::encryption::twofishDecrypt(const std::string& str, const std::string& twofish_key,
+                                     const std::string& twofish_iv, std::string& op_text) {
   try {
-    CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(aes_key);
+    CryptoPP::SecByteBlock key = phi::encryption::byteblockFromStr(twofish_key);
 
-    std::array<unsigned char, CryptoPP::AES::BLOCKSIZE> iv{};
-    const size_t copy_len = std::min(aes_iv.size(), iv.size());
-    if (copy_len > 0) std::memcpy(iv.data(), aes_iv.data(), copy_len);
+    std::array<unsigned char, CryptoPP::Twofish::BLOCKSIZE> iv{};
+    const size_t copy_len = std::min(twofish_iv.size(), iv.size());
+    if (copy_len > 0) std::memcpy(iv.data(), twofish_iv.data(), copy_len);
 
-    CryptoPP::GCM<CryptoPP::AES>::Decryption dec;
+    CryptoPP::GCM<CryptoPP::Twofish>::Decryption dec;
     dec.SetKeyWithIV(key, key.size(), iv.data(), iv.size());
 
     std::string output;

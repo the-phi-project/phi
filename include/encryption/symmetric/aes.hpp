@@ -21,14 +21,15 @@
 #include <cryptopp/osrng.h>
 #include <cryptopp/rijndael.h>
 #include <cryptopp/aes.h>
+#include <cryptopp/gcm.h>
+#include <cryptopp/filters.h>
 
 //---------> [ Config. Separator ] <---------\\ 
 
 namespace phi::encryption {
 
 /*
-Generate a public/private key
- pair using Crypto++ AES implementation
+Generate a key using Crypto++ AES implementation
 
 size is either 128, 192, or 256
 */
@@ -58,14 +59,14 @@ bool aesDecrypt(const std::string& str, const std::string& aes_key, const std::s
 /*
 Convert a CryptoPP::SecByteBlock to a std::string
 */
-inline std::string aesToStr(const CryptoPP::SecByteBlock& key) {
+inline std::string byteblockToStr(const CryptoPP::SecByteBlock& key) {
   return std::string(reinterpret_cast<const char*>(key.data()), key.size());
 }
 
 /*
 Convert a std::string to a CryptoPP::SecByteBlock
 */
-inline CryptoPP::SecByteBlock aesFromStr(const std::string& key) {
+inline CryptoPP::SecByteBlock byteblockFromStr(const std::string& key) {
   CryptoPP::SecByteBlock output(static_cast<size_t>(key.size()));
 
   if (!key.empty()) std::memcpy(output.data(), key.data(), key.size());
@@ -75,4 +76,4 @@ inline CryptoPP::SecByteBlock aesFromStr(const std::string& key) {
 
 }  // namespace phi::encryption
 
-#endif /* RSA_HPP */
+#endif /* AES_HPP */
