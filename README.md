@@ -7,7 +7,7 @@
 [![C++](https://img.shields.io/badge/-C++-blue?logo=cplusplus)](#)
 [![SQLite](https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white)](#)
 
-[![version](https://img.shields.io/badge/version-0.2.2-blue)](#)
+[![version](https://img.shields.io/badge/version-0.3.4-blue)](#)
 [![passing](https://img.shields.io/badge/build-passing-green)](#)
 [![testing](https://img.shields.io/badge/coverage-N/A-yellow)](#)
 [![secure](https://img.shields.io/badge/secure-very-green)](#)
@@ -19,7 +19,7 @@
 
 # PHI
 
-<h5 style="color:#fbb040">Quantum-Safe TUI Encryption/Decryption Tool with a Contact Book<br>Named after Pheidippides <i>(Φειδιππίδης)</i> who ran 25 miles from Marathon to Athens in order to deliver a message.</h5>
+<h5 style="color:#fbb040">Quantum-Safe TUI Encryption/Decryption Tool with a Contact Book<br>Named after Pheidippides <i>(Φειδιππίδης)</i> who ran 26.2 miles from Marathon to Athens in order to deliver a message.</h5>
 
 </div>
 
@@ -32,24 +32,27 @@
 <h5>👤 USER EXPERIENCE</h5>
 
 * SQLite3 database to hold user data - [SQLiteC++](https://github.com/SRombauts/SQLiteCpp)
-	* Password protected
 * Advanced and intuitive Terminal User Interface - [FTXUI](https://arthursonzogni.github.io/FTXUI/)
-	* Built in screensaver (Credit: Oakamoore) - [TERMINAL-RAIN](https://github.com/Oakamoore/terminal-rain/)
+* CLI mode to access the app through system commands - [cxxopts](https://github.com/jarro2783/cxxopts)
 
 <h5>🔒 SECURITY</h5>
 
 > [!IMPORTANT]
-> Database API is primed for password protection, the only roadblock is SQLiteC++ and CMake
+> RSA-2048 will soon be replaced with RSA-8192
 
 * GZip (L3) compression for messages - [zlib](https://zlib.net)
 * Supports multiple symmetric encryption algorithms for message content
 	* ChaCha20-Poly1305 - [libsodium](https://doc.libsodium.org/secret-key_cryptography/aead/chacha20-poly1305)
 	* AES-128, AES-192, AES-256 - [Crypto++](https://www.cryptopp.com/wiki/Advanced_Encryption_Standard)
+	* twofish-256 - [Crypto++](https://www.cryptopp.com/wiki/twofish)
+	* ARIA-192, ARIA-256 - [Crypto++](https://www.cryptopp.com/wiki/ARIA)
+	* IDEA - [Crypto++](https://www.cryptopp.com/wiki/IDEA)
 * Supports multiple asymmetric encryption algorithms for message blocks
 	* RSA-2048, RSA-4096 - [Crypto++](https://www.cryptopp.com/wiki/RSA_Cryptography)
-	* Kyber-512, Kyber-768 - [pq-crystals](https://github.com/pq-crystals/kyber)
+	* Kyber-512, Kyber-768, Kyber-1024 - [pq-crystals](https://github.com/itzmeanjan/ml-kem)
+	* NTRU-2048, NTRU-4906, NTRU-8192 - [libntru](https://github.com/tbuktu/libntru)
+* ed25519 elliptic curve signature to ensure authenticity and tamper-proof - [Crypto++](https://www.cryptopp.com/wiki/ed25519)
 * Provides performant and secure hybrid encryption, inspiration from PGP
-* BLAKE2b signature to ensure no tampering - [Crypto++](https://www.cryptopp.com/wiki/BLAKE2)
 
 <h1>⤵️ INSTALLATION</h1>
 
@@ -60,29 +63,10 @@ Unfortunately, Phi is not available for windows yet. Coming soon.
 
 <h5>LINUX (Debian/Ubuntu)</h5>
 
-```bash
-sudo apt install zlib1g-dev  # install zlib
-
-git clone https://www.github.com/TrynaThinkOf1/phi.git
-cd phi/
-
-python3 sysutils.py  # select option 2
-
-sudo mv phi /usr/bin/phi
-
-phi  # then proceed with setup
-```
-
 <h5>MACOS</h5>
 
-```bash
-git clone https://www.github.com/TrynaThinkOf1/phi.git
-cd phi/
+<h5>WINDOWS</h5>
 
-python3 sysutils.py  # select option 2
+---
 
-sudo mv phi /usr/local/bin/phi
-
-echo 'PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
+Checkout the other repos in this [organization](https://www.github.com/the-phi-project)

@@ -1,7 +1,7 @@
 # CONFIGURATION
 cmake_minimum_required(VERSION 3.24...4.1.2)
 project(PHI
-    VERSION 0.3.2
+    VERSION 0.3.4
     LANGUAGES C CXX
 )
 
