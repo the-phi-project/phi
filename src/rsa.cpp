@@ -21,9 +21,6 @@
 //---------> [ Config. Separator ] <---------\\ 
 
 void phi::encryption::rsaGenKeyPair(int size, std::string& op_public, std::string& op_private) {
-  op_public.resize(size / 8);
-  op_private.resize(size / 8);
-
   CryptoPP::AutoSeededRandomPool rng;
 
   CryptoPP::RSA::PrivateKey priv;
