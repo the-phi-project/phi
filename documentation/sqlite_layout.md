@@ -14,6 +14,10 @@
 | kyber512_priv | TEXT | N/A |
 | kyber768_pub | TEXT | N/A |
 | kyber768_priv | TEXT | N/A |
+| kyber1024_pub | TEXT | N/A |
+| kyber1024_priv | TEXT | N/A |
+| ed25519_pub | TEXT | N/A |
+| ed25519_priv | TEXT | N/A |
 
 ---
 
@@ -26,6 +30,8 @@
 | rsa4096 | TEXT | N/A |
 | kyber512 | TEXT | N/A |
 | kyber768 | TEXT | N/A |
+| kyber1024 | TEXT | N/A |
+| ed25519 | TEXT | N/A |
 ```sql
 UNIQUE(name)
 ```
