@@ -17,13 +17,20 @@ extern "C" {
 #ifndef NTRU_H
 #define NTRU_H
 
-#include <stdlib.h>
+#include <string.h>
 
 #include "oqs/oqs.h"  // common include
 
 //---------> [ Config. Separator ] <---------\\ 
 
-void ntru_testing(int a);
+/*
+Generate public and private keys for NTRUEncrypt
+
+std::string.data() pointers MUST BE preallocated
+
+Size: 1373 for hrss_1373 and 4096 for hsp_40961229
+*/
+bool ntruGenKeyPair(int size, char* op_public, char* op_private);
 
 //---------> [  ] <---------\\ 
 
