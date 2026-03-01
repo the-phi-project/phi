@@ -10,9 +10,17 @@
 
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef NTRU_H
 #define NTRU_H
 
 
 
 #endif /* NTRU_H */
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif

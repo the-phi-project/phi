@@ -27,7 +27,7 @@ find_package(ZLIB REQUIRED)
 # GLOBAL VARIABLES
 set(PHI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
-file(GLOB_RECURSE PHI_SRC CONFIGURE_DEPENDS ${PHI_SRC_DIR}/*.cpp)
+file(GLOB_RECURSE PHI_SRC CONFIGURE_DEPENDS ${PHI_SRC_DIR}/*.cpp ${PHI_SRC_DIR}/*.c)
 #
 
 include(FetchContent)
@@ -59,12 +59,11 @@ set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
 set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
-  ml-kem
-  GIT_REPOSITORY https://github.com/itzmeanjan/ml-kem.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE
+    ml-kem
+    GIT_REPOSITORY https://github.com/itzmeanjan/ml-kem.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
 )
-FetchContent_MakeAvailable(ml-kem)
 
 FetchContent_MakeAvailable(ftxui cryptopp-cmake Sodium SQLiteCpp ml-kem)
 

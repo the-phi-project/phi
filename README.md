@@ -50,7 +50,7 @@
 * Supports multiple asymmetric encryption algorithms for message blocks
 	* RSA-2048, RSA-4096 - [Crypto++](https://www.cryptopp.com/wiki/RSA_Cryptography)
 	* Kyber-512, Kyber-768, Kyber-1024 - [pq-crystals](https://github.com/itzmeanjan/ml-kem)
-	* NTRU-2048, NTRU-4906, NTRU-8192 - [libntru](https://github.com/tbuktu/libntru)
+	* NTRU-HPS-4096, NTRU-HRSS-1373 - [liboqs](https://github.com/open-quantum-safe/liboqs)
 * ed25519 elliptic curve signature to ensure authenticity and tamper-proof - [Crypto++](https://www.cryptopp.com/wiki/ed25519)
 * Provides performant and secure hybrid encryption, inspiration from PGP
 
