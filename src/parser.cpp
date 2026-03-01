@@ -62,6 +62,12 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
                 << "\n";
       return SUCCESS;
     }
+    if (result.contains("version")) {
+      std::cout << "Phi v" << PHI_VERSION << "\n";
+      return SUCCESS;
+    }
+
+
     if (result.contains("list-contacts")) {
       std::vector<std::tuple<int, std::string>> contacts = DATABASE->getAllContacts();
       for (const auto& contact : contacts) {
