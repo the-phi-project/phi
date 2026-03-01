@@ -17,7 +17,15 @@ extern "C" {
 #ifndef NTRU_H
 #define NTRU_H
 
+#include <stdlib.h>
 
+#include "oqs/oqs.h"  // common include
+
+//---------> [ Config. Separator ] <---------\\ 
+
+void ntru_testing(int a);
+
+//---------> [  ] <---------\\ 
 
 #endif /* NTRU_H */
 

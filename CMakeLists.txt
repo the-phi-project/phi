@@ -85,21 +85,20 @@ target_include_directories(phi
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(phi
-    PRIVATE
-        ZLIB::ZLIB
-        sodium
-        SQLiteCpp
-        cryptopp
-        ftxui::screen
-        ftxui::dom
-        ftxui::component
-        ml-kem
-)
 
-target_link_directories(phi
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib
+add_library(oqs IMPORTED SHARED)
+set_target_properties(oqs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/liboqs.dylib)
+
+target_link_libraries(phi PRIVATE
+    ZLIB::ZLIB
+    sodium
+    SQLiteCpp
+    cryptopp
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+    ml-kem
+    oqs
 )
 
 target_compile_options(phi
