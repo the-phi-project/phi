@@ -1,7 +1,7 @@
 # CONFIGURATION
 cmake_minimum_required(VERSION 3.24...4.1.2)
 project(PHI
-    VERSION 0.3.2
+    VERSION 0.3.4
     LANGUAGES C CXX
 )
 
@@ -27,7 +27,7 @@ find_package(ZLIB REQUIRED)
 # GLOBAL VARIABLES
 set(PHI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
-file(GLOB_RECURSE PHI_SRC CONFIGURE_DEPENDS ${PHI_SRC_DIR}/*.cpp)
+file(GLOB_RECURSE PHI_SRC CONFIGURE_DEPENDS ${PHI_SRC_DIR}/*.cpp ${PHI_SRC_DIR}/*.c)
 #
 
 include(FetchContent)
@@ -59,12 +59,11 @@ set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
 set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
-  ml-kem
-  GIT_REPOSITORY https://github.com/itzmeanjan/ml-kem.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE
+    ml-kem
+    GIT_REPOSITORY https://github.com/itzmeanjan/ml-kem.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
 )
-FetchContent_MakeAvailable(ml-kem)
 
 FetchContent_MakeAvailable(ftxui cryptopp-cmake Sodium SQLiteCpp ml-kem)
 
@@ -86,21 +85,20 @@ target_include_directories(phi
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(phi
-    PRIVATE
-        ZLIB::ZLIB
-        sodium
-        SQLiteCpp
-        cryptopp
-        ftxui::screen
-        ftxui::dom
-        ftxui::component
-        ml-kem
-)
 
-target_link_directories(phi
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib
+add_library(oqs IMPORTED SHARED)
+set_target_properties(oqs PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/liboqs.dylib)
+
+target_link_libraries(phi PRIVATE
+    ZLIB::ZLIB
+    sodium
+    SQLiteCpp
+    cryptopp
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+    ml-kem
+    oqs
 )
 
 target_compile_options(phi

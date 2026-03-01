@@ -57,20 +57,16 @@ https://github.com/the-phi-project/phi
   an object which is then called to add an option so when the parentheses are chained
   together it calls the function multiple times and adds mutliple options
   */
-  options.add_options()("h,help", "Open the help menu")  //
-    ("list-contacts", "")                                //
-    ("e,encrypt", "")                                    //
-    ("d,decrypt", "")                                    //
-    ("i,in-file", "",
-     cxxopts::value<std::string>())  //
-    ("s,str", "",
-     cxxopts::value<std::string>())  //
-    ("o,out-file", "",
-     cxxopts::value<std::string>())  //
-    ("a,asymmetric", "",
-     cxxopts::value<std::string>())  //
-    ("s,symmetric", "",
-     cxxopts::value<std::string>())  //
+  options.add_options()("v,version", "Show the version")  //
+    ("h,help", "Open the help menu")                      //
+    ("list-contacts", "")                                 //
+    ("e,encrypt", "")                                     //
+    ("d,decrypt", "")                                     //
+    ("i,in-file", "", cxxopts::value<std::string>())      //
+    ("str", "", cxxopts::value<std::string>())            //
+    ("o,out-file", "", cxxopts::value<std::string>())     //
+    ("a,asymmetric", "", cxxopts::value<std::string>())   //
+    ("s,symmetric", "", cxxopts::value<std::string>())    //
     ("c,contact-id", "", cxxopts::value<int>());
 
   return options;

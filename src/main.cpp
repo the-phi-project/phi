@@ -22,6 +22,8 @@
 #include "parser.hpp"
 #include "utils/file_utils.hpp"
 
+#include "encryption/asymmetric/ntru.h"
+
 #define RESET_TERM "\x1b[2J\x1b[H"
 
 namespace tmc = termcolor;
@@ -46,13 +48,24 @@ int main(int argc, char** argv) {
 
   /**/
 
+  // this check allows me to not do a check every time I boot up the KEM
+  if (!ntruInit()) {
+    std::cout
+      << tmc::bright_red
+      << "⛔️ Failed to access NTRUEncrypt algorithms due to incompatible linked library ⛔️\n"
+      << tmc::reset;
+    return 1;
+  }
+
+  /**/
+
   const std::shared_ptr<phi::database::Database> DATABASE =
     std::make_shared<phi::database::Database>();
 
   /**** ****/
 
   if (argc > 1) {
-    auto options = phi::parser::createOptions();  // cxxopts::Options
+    cxxopts::Options options = phi::parser::createOptions();
     return phi::parser::parseArguments(options, argc, argv, DATABASE);
   }
 

@@ -67,7 +67,7 @@ static std::string ed25519ToStr(const KeyType& key) {
 template <typename KeyType>
 static KeyType ed25519FromStr(const std::string& str) {
   std::string decoded;
-  CryptoPP::StringSource ss(str, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
+  CryptoPP::StringSource css(str, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
 
   KeyType key;
   CryptoPP::StringSource keySource(decoded, true);

@@ -61,25 +61,6 @@ bool kyberGenData(const std::array<uint8_t, variant::pkey_len>& kyber_pub_key,
   return variant::encapsulate(encapsulation_seed, kyber_pub_key, op_ciphertext, op_ss);
 }
 
-//------------[ Func. Implementation Separator ]------------\\ 
-
-template <typename variant>
-std::vector<uint8_t> kyberDeriveKey(int key_size, const std::string& context,
-                                    const std::array<uint8_t, kyber_ss_len>& ss) {
-  //
-  shake256::shake256_t xof;  // extendable output function
-  xof.absorb(ss);
-  xof.absorb(
-    std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(context.data()), context.size()));
-  xof.finalize();
-
-  std::vector<uint8_t> derived(key_size);
-
-  xof.squeeze(derived);
-
-  return derived;
-}
-
 }  // namespace phi::encryption
 
 #endif /* KYBER_TPP */
