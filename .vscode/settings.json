@@ -77,6 +77,13 @@
     "--completion-style=bundled",
     "--fallback-style=LLVM",
     "--enable-config"
-  ]
+  ],
   /** **/
+  "search.exclude": {
+    "**/.git": true,
+    "**/oqs": true,
+    "**/nlohmann": true,
+    "**/cxxopts.hpp": true,
+    "**/termcolor.hpp": true
+  }
 }
