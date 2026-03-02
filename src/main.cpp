@@ -21,7 +21,6 @@
 #include "ui/Manager.hpp"
 #include "parser.hpp"
 #include "utils/file_utils.hpp"
-
 #include "encryption/asymmetric/ntru.h"
 
 #define RESET_TERM "\x1b[2J\x1b[H"

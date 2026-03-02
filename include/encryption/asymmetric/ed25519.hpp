@@ -55,9 +55,8 @@ template <typename KeyType>
 static std::string ed25519ToStr(const KeyType& key) {
   std::string output;
 
-  CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(output), false);
-  key.Save(encoder);
-  encoder.MessageEnd();
+  CryptoPP::StringSink sink(output);
+  key.Save(sink);
 
   return output;
 }
@@ -66,14 +65,28 @@ static std::string ed25519ToStr(const KeyType& key) {
 
 template <typename KeyType>
 static KeyType ed25519FromStr(const std::string& str) {
-  std::string decoded;
-  CryptoPP::StringSource css(str, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
-
   KeyType key;
-  CryptoPP::StringSource keySource(decoded, true);
-  key.Load(keySource);
+  CryptoPP::StringSource key_source(str, true);
+  key.Load(key_source);
 
   return key;
+}
+
+//================={ Header Item Separator }=================\\ 
+
+/*
+Validate a CryptoPP::ed25519 key fully
+*/
+template <typename KeyType>
+static bool ed25519ValidateKey(const std::string& str) {
+  CryptoPP::AutoSeededRandomPool rng;
+  try {
+    KeyType key = ed25519FromStr<KeyType>(str);
+    // level 2 - make sure this object will function correctly, and do reasonable security checks
+    return key.Validate(rng, 2);
+  } catch (const CryptoPP::BERDecodeErr& exc) {
+    return false;
+  }
 }
 
 }  // namespace phi::encryption

@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include <cryptopp/cryptlib.h>
 #include <cryptopp/queue.h>
 #include <cryptopp/rsa.h>
 #include <cryptopp/osrng.h>
@@ -22,6 +23,8 @@
 //---------> [ Config. Separator ] <---------\\ 
 
 namespace phi::encryption {
+
+//================={ Header Item Separator }=================\\ 
 
 /*
 Generate a public/private key
@@ -82,6 +85,23 @@ static KeyType rsaFromStr(const std::string& key) {
   output.Load(bqu);
 
   return output;
+}
+
+//================={ Header Item Separator }=================\\ 
+
+/*
+Validate a CryptoPP::RSA:: key
+*/
+template <typename KeyType>
+inline bool rsaValidateKey(const std::string& str) {
+  CryptoPP::AutoSeededRandomPool rng;
+  try {
+    KeyType key = rsaFromStr<KeyType>(str);
+    // level 2 - make sure this object will function correctly, and do reasonable security checks
+    return key.Validate(rng, 2);
+  } catch (const CryptoPP::BERDecodeErr& exc) {
+    return false;
+  }
 }
 
 }  // namespace phi::encryption
