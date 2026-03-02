@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include <cryptopp/cryptlib.h>
 #include <cryptopp/queue.h>
 #include <cryptopp/rsa.h>
 #include <cryptopp/osrng.h>
@@ -22,6 +23,20 @@
 //---------> [ Config. Separator ] <---------\\ 
 
 namespace phi::encryption {
+
+/*
+Validate a CryptoPP::RSA:: key
+
+Should be used in conjunction with a try/catch block
+ and the rsaFromStr() func
+*/
+inline bool rsaValidateKey(const CryptoPP::CryptoMaterial& key) {
+  CryptoPP::AutoSeededRandomPool rng;
+  // level 2 - make sure this object will function correctly, and do reasonable security checks
+  return key.Validate(rng, 2);
+}
+
+//================={ Header Item Separator }=================\\ 
 
 /*
 Generate a public/private key
