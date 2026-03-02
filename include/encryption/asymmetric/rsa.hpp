@@ -24,18 +24,6 @@
 
 namespace phi::encryption {
 
-/*
-Validate a CryptoPP::RSA:: key
-
-Should be used in conjunction with a try/catch block
- and the rsaFromStr() func
-*/
-inline bool rsaValidateKey(const CryptoPP::CryptoMaterial& key) {
-  CryptoPP::AutoSeededRandomPool rng;
-  // level 2 - make sure this object will function correctly, and do reasonable security checks
-  return key.Validate(rng, 2);
-}
-
 //================={ Header Item Separator }=================\\ 
 
 /*
@@ -97,6 +85,23 @@ static KeyType rsaFromStr(const std::string& key) {
   output.Load(bqu);
 
   return output;
+}
+
+//================={ Header Item Separator }=================\\ 
+
+/*
+Validate a CryptoPP::RSA:: key
+*/
+template <typename KeyType>
+inline bool rsaValidateKey(const std::string& str) {
+  CryptoPP::AutoSeededRandomPool rng;
+  try {
+    KeyType key = rsaFromStr<KeyType>(str);
+    // level 2 - make sure this object will function correctly, and do reasonable security checks
+    return key.Validate(rng, 2);
+  } catch (const CryptoPP::BERDecodeErr& exc) {
+    return false;
+  }
 }
 
 }  // namespace phi::encryption
