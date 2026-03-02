@@ -24,6 +24,8 @@
 
 namespace phi::encryption {
 
+
+
 /*
 Generate a public/private key
  pair using Crypto++ ed25519 implementation
@@ -55,9 +57,8 @@ template <typename KeyType>
 static std::string ed25519ToStr(const KeyType& key) {
   std::string output;
 
-  CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(output), false);
-  key.Save(encoder);
-  encoder.MessageEnd();
+  CryptoPP::StringSink sink(output);
+  key.Save(sink);
 
   return output;
 }
@@ -66,11 +67,8 @@ static std::string ed25519ToStr(const KeyType& key) {
 
 template <typename KeyType>
 static KeyType ed25519FromStr(const std::string& str) {
-  std::string decoded;
-  CryptoPP::StringSource css(str, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
-
   KeyType key;
-  CryptoPP::StringSource keySource(decoded, true);
+  CryptoPP::StringSource keySource(str, true);
   key.Load(keySource);
 
   return key;
