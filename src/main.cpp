@@ -63,14 +63,15 @@ int main(int argc, char** argv) {
   /**** ****/
 
   if (argc > 1) {
-    cxxopts::Options options = phi::parser::createOptions();
+    cxxopts::Options options = phi::parser::createOptions();  // must create due to reference lvalue
     return phi::parser::parseArguments(options, argc, argv, DATABASE);
   }
 
   auto size = phi::ui::getTerminalSize();
   if (size.ws_col < phi::ui::COLS || size.ws_row < phi::ui::ROWS) {
     std::cout << tmc::bright_red << "⛔️ Phi requires a terminal size of at least " << phi::ui::COLS
-              << "x" << phi::ui::ROWS << " to properly render the TUI ⛔️\n"
+              << "x" << phi::ui::ROWS << " to properly render the TUI ⛔️\nYour terminal size is "
+              << size.ws_col << "x" << size.ws_row << "\n"
               << tmc::reset;
     return 1;
   }
