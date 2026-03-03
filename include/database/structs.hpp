@@ -85,6 +85,10 @@ struct contact_t {
     std::map<std::string, std::string*> MAP;
 
     contact_t() {
+      initMap();
+    }
+
+    void initMap() {
       this->MAP["name"] = &this->name;
       this->MAP["rsa2048"] = &this->rsa2048;
       this->MAP["rsa4096"] = &this->rsa4096;
@@ -92,6 +96,14 @@ struct contact_t {
       this->MAP["kyber768"] = &this->kyber768;
       this->MAP["kyber1024"] = &this->kyber1024;
       this->MAP["ed25519"] = &this->ed25519;
+    }
+
+    // copy constructor that refreshes ptrs
+    contact_t(contact_t& obj) : id(obj.id) {
+      initMap();
+      for (const auto& [field, ptr] : obj.MAP) {
+        *(this->MAP[field]) = *ptr;  // copy field
+      }
     }
 
     //=====[ Declaration Separator ]=====\\ 
