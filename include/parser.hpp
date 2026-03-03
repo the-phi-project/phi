@@ -32,6 +32,7 @@
 #include "database/Database.hpp"
 #include "database/structs.hpp"
 #include "utils/str_utils.hpp"
+#include "utils/input_validation_utils.hpp"
 
 namespace tmc = termcolor;
 

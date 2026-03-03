@@ -31,6 +31,7 @@
 #include "database/Database.hpp"
 #include "database/structs.hpp"
 #include "utils/str_utils.hpp"
+#include "utils/input_validation_utils.hpp"
 
 namespace tmc = termcolor;
 
@@ -77,9 +78,11 @@ https://github.com/the-phi-project/phi
     ("a,asymmetric", "Asymmetric alg. for key encapsulation", cxxopts::value<std::string>())  //
     ("s,symmetric", "Symmetric alg. for content encryption", cxxopts::value<std::string>())   //
     // OPTIONS
-    ("c,contact-id", "Contact ID for any of the params above", cxxopts::value<int>())  //
-    ("str", "Input content from a string", cxxopts::value<std::string>())              //
-    ("i,in-file", "Input content from a file", cxxopts::value<std::string>())          //
+    ("c,contact-id", "Contact ID for any of the params above", cxxopts::value<int>())    //
+    ("field", "The field of the contact to edit", cxxopts::value<std::string>())         //
+    ("value", "The value to set the contact's field to", cxxopts::value<std::string>())  //
+    ("str", "Input content from a string", cxxopts::value<std::string>())                //
+    ("i,in-file", "Input content from a file", cxxopts::value<std::string>())            //
     ("o,out-file", "Output content into a file", cxxopts::value<std::string>());
 
   return options;
@@ -121,13 +124,6 @@ int phi::parser::parseArguments(cxxopts::Options& options, int argc, char** argv
 
     return SUCCESS;
 
-    if (result.contains("list-contacts")) {
-      std::vector<std::tuple<int, std::string>> contacts = DATABASE->getAllContacts();
-      for (const auto& contact : contacts) {
-        std::cout << "(" << std::get<0>(contact) << ") " << std::get<1>(contact) << "\n";
-      }
-      return SUCCESS;
-    }
   } catch (const cxxopts::exceptions::exception& exc) {
     std::cout << RED << "Error parsing program arguments: " << ITL << exc.what() << RST << "\n";
     return USAGE_FAILURE;
@@ -145,15 +141,49 @@ int phi::parser::parseContactRequest(const cxxopts::ParseResult& result,
     return USAGE_FAILURE;
   }
 
+  /**/
+
   int contact_id = -1;
-  phi::database::contact_t contact;
-  if (!result.contains("list")) {
+  phi::database::contact_t contact{};
+
+  /**/
+
+  if (result.contains("list")) {
+    std::vector<std::tuple<int, std::string>> contacts = DATABASE->getAllContacts();
+
+    std::stringstream medium;
+
+    medium << "{ ";
+    for (size_t i = 0; i < contacts.size() - 1; i++) {
+      medium << "{" << std::get<0>(contacts[i]) << ": \"" << std::get<1>(contacts[i]) << "\"}, ";
+    }
+    medium << "{" << std::get<0>(contacts[contacts.size() - 1]) << ": \""
+           << std::get<1>(contacts[contacts.size() - 1]) << "\"} }\n";
+
+    if (result.contains("out-file")) {
+      const std::string path = result["out-file"].as<std::string>();
+      std::ofstream file(path);
+      if (!file) {
+        std::cout << RED << "Unable to write to `" << ITL << path << RST << RED << "`\n" << RST;
+        return FILE_ERROR;
+      }
+
+      file << medium.rdbuf();
+    } else {
+      std::cout << medium.rdbuf();
+    }
+
+    return SUCCESS;
+    /**/
+  } else {  // NOLINT otherwise we should load contact based on ID
     contact_id = result["contact-id"].as<int>();
     if (!DATABASE->getContact(contact_id, contact)) {
       std::cout << RED << "No contact with ID `" << ITL << contact_id << RST << RED << "`\n" << RST;
       return CONTACT_ERROR;
     }
   }
+
+  /**/
 
   if (result.contains("get")) {
     if (result.contains("out-file")) {
@@ -168,9 +198,52 @@ int phi::parser::parseContactRequest(const cxxopts::ParseResult& result,
     } else {
       std::cout << contact.to_json_str() << "\n";
     }
+    /**/
   } else if (result.contains("edit")) {
+    std::string field, value;
+    if (result.contains("field")) field = result["field"].as<std::string>();
+    if (result.contains("value")) value = result["value"].as<std::string>();
+
+    if (field.empty() || value.empty()) {
+      std::cout << RED << "Edit request must contain a non-empty field and a value\n" << RST;
+      return USAGE_FAILURE;
+    }
+
+    phi::database::contact_t editable = contact;  // custom copy constructor to deal with MAP ptrs
+    if (field == "id") {
+      try {
+        editable.id = std::stoi(value);
+        /**/
+      } catch (const std::invalid_argument& exc) {
+        std::cout << RED << "Invalid argument `" << ITL << value << RST << RED
+                  << "`, ID must be an integer\n"
+                  << RST;
+        return USAGE_FAILURE;
+      }
+      /**/
+    } else {
+      if (contact.MAP.find(field) != contact.MAP.end()) {  // key exists
+        std::string decoded = fromB64(value);
+        if (!validateGivenKeyContact(field, decoded)) {
+          std::cout << RED << "Invalid " << field
+                    << " public key; must be a base64 chunk without guards\n"
+                    << RST;
+          return USAGE_FAILURE;
+        }
+
+        *(editable.MAP[field]) = decoded;
+
+        /**/
+
+        DATABASE->updateContact(contact, editable);
+      } else {
+        std::cout << RED << "Field `" << ITL << field << RST << RED << "` does not exist\n" << RST;
+        return USAGE_FAILURE;
+      }
+    }
+    /**/
   } else if (result.contains("delete")) {
-  } else if (result.contains("list")) {
+    DATABASE->deleteContact(contact_id);
   }
 
   return SUCCESS;
