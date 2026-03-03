@@ -20,12 +20,8 @@ compile_commands.json
 !/phi/
 phi.exe
 
-/phid
-!/phid/
-phid.exe
-
-tests/msg.txt
-tests/decrypted.txt
+tests/*
+!/tests/*.sh
 
 .DS_Store
 
