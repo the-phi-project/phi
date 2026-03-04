@@ -25,13 +25,17 @@
 
 #include "encryption/asymmetric/rsa.hpp"
 #include "encryption/asymmetric/kyber.hpp"
+#include "encryption/asymmetric/ed25519.hpp"
+#include "encryption/asymmetric/ntru.h"
 #include "encryption/symmetric/aes.hpp"
 #include "encryption/symmetric/ccp.hpp"
+#include "encryption/symmetric/twofish.hpp"
 #include "encryption/hashing.hpp"
 #include "encryption/gzip.hpp"
 #include "database/Database.hpp"
 #include "database/structs.hpp"
 #include "utils/str_utils.hpp"
+#include "utils/input_validation_utils.hpp"
 
 namespace tmc = termcolor;
 
@@ -39,45 +43,39 @@ namespace tmc = termcolor;
 
 namespace phi::parser {
 
-// static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
-
-// static const std::vector<std::string> symtypes{"aes128", "aes192", "aes256",
-// "chacha20_poly1305"};
-
-//=====[ Declaration Separator ]=====\\ 
-
-static cxxopts::Options createOptions() {
-  cxxopts::Options options("phi",
-                           R"desc(Quantum-Safe TUI Encryption/Decryption Tool with a Contact Book
-https://github.com/the-phi-project/phi
-)desc");
-
-  /*
-  The stuff below is called method chaining. The original call to `add_options()` returns
-  an object which is then called to add an option so when the parentheses are chained
-  together it calls the function multiple times and adds mutliple options
-  */
-  options.add_options()("v,version", "Show the version")  //
-    ("h,help", "Open the help menu")                      //
-    ("list-contacts", "")                                 //
-    ("e,encrypt", "")                                     //
-    ("d,decrypt", "")                                     //
-    ("i,in-file", "", cxxopts::value<std::string>())      //
-    ("str", "", cxxopts::value<std::string>())            //
-    ("o,out-file", "", cxxopts::value<std::string>())     //
-    ("a,asymmetric", "", cxxopts::value<std::string>())   //
-    ("s,symmetric", "", cxxopts::value<std::string>())    //
-    ("c,contact-id", "", cxxopts::value<int>());
-
-  return options;
-}
+/*
+Create the Options object that outlines all possible
+ command line arguments, checkout documentation/phi.1
+*/
+cxxopts::Options createOptions();
 
 //================={ Header Item Separator }=================\\ 
 
+/*
+Small function to parse arguments and sort into the
+ catch functions below
+*/
 int parseArguments(cxxopts::Options& options, int argc, char** argv,
                    const std::shared_ptr<phi::database::Database>& DATABASE);
 
 //================={ Header Item Separator }=================\\ 
+
+// function located in src/parser_contact.cpp
+int parseContactRequest(const cxxopts::ParseResult& result,
+                        const std::shared_ptr<phi::database::Database>& DATABASE);
+
+//================={ Header Item Separator }=================\\ 
+
+// function located in src/parser_encrypt.cpp
+int parseEncryptRequest(const cxxopts::ParseResult& result,
+                        const std::shared_ptr<phi::database::Database>& DATABASE);
+
+//================={ Header Item Separator }=================\\ 
+
+// function located in src/parser_decrypt.cpp
+int parseDecryptRequest(const cxxopts::ParseResult& result,
+                        const std::shared_ptr<phi::database::Database>& DATABASE);
+
 
 }  // namespace phi::parser
 

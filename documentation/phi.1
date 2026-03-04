@@ -1,26 +1,24 @@
 .TH phi 1 "28 February 2026" "man page version 0.0.6"
 
 .SH NAME
-phi - Quantum-Safe TUI Encryption/Decryption Tool with a Contact Book (https://www.github.com/the-phi-project/phi)
+phi - Quantum-Safe TUI/CLI Encryption/Decryption Tool with a Contact Book (https://www.github.com/the-phi-project/phi)
  Named after Pheidippides (Φειδιππίδης) who ran 25 miles from Marathon to Athens in order to deliver a message.
 
 .SH DESCRIPTION
 phi is a powerful and efficient tool for encrypting and decrypting text and files to
 .I safely
 pass around on the internet. It's designed to operate in 2 ways: a TUI (Terminal User Interface), 
-and as a CLI (Command Line Interface). In TUI mode you can utilize the app to its full capabilities
-with encryption/decryption in all modes and creating/editing/deleting contacts and their keys.
-However, in CLI mode it can only encrypt and decrypt messages based on contacts that already exist
-(it can also list contacts' name and ID).
+and as a CLI (Command Line Interface). In both modes you can utilize the app to its full capabilities
+with encryption/decryption in all modes and reading/editing/deleting contacts and their keys; as well 
+reading/editing your own keys.
 
 .SH SYNOPSIS
-.B "phi [--list-contacts | --help]"
+.B "phi [ --version | --help]"
 
-.B "phi [--encrypt] [--in-file|--str] [--contact-id] [--symmetric] [--asymmetric] [--out-file]"
+.B "phi [ ...MODE ]"
+[ ...PARAMETERS ] [ ...OPTIONS ]
 
-.B "phi [--decrypt] [--in-file|--str] [--out-file]"
-
-.SH OPTIONS (CLI Mode)
+.SH PARAMETERS (CLI Mode)
 
 .B "-h, --help  "
 Tells you to open this manpage
@@ -39,7 +37,7 @@ Take input from the file located at
 .I filepath
 .B " (Required UNLESS using the --str argument seen below)"
 
-.BI "-s, --str " \&"content\&"
+.BI "--str " \&"content\&"
 .BR "" "  Use"
 ." ^this^ is for adding the two space buffer
 .I content
@@ -56,6 +54,11 @@ Mode of symmetric encryption: aes128, aes192, aes256, chacha20_poly1305, twofish
 
 .BI "-a, --asymmetric" " mode  "
 Mode of asymmetric encryption: rsa2048, rsa4096, kyber512, kyber768, kyber1024, ntru_hps_4096, ntru_hrss_1373
+
+.SH OPTIONS (CLI Mode)
+
+.SH ERRORS (CLI and TUI Mode)
+Full error documentation exists on Phi's GitHub Wiki, however here is a list of common errors and their explanations
 
 
 .SH FILES

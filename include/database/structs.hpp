@@ -14,7 +14,7 @@
 #define DATABASE_STRUCTS_HPP
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "nlohmann/json.hpp"
 
@@ -40,7 +40,7 @@ struct self_t {
     std::string ed25519_pub;
     std::string ed25519_priv;
 
-    std::unordered_map<std::string, std::string*> MAP;
+    std::map<std::string, std::string*> MAP;
 
     self_t() {
       this->MAP["rsa2048_pub"] = &this->rsa2048_pub;
@@ -56,6 +56,18 @@ struct self_t {
       this->MAP["ed25519_pub"] = &this->ed25519_pub;
       this->MAP["ed25519_priv"] = &this->ed25519_priv;
     }
+
+    //=====[ Declaration Separator ]=====\\ 
+
+    std::string to_json_str() const {
+      nlohmann::ordered_json j;
+
+      for (const auto& [field, ptr] : this->MAP) {
+        j[field] = toB64(*ptr);
+      }
+
+      return j;
+    }
 };
 
 //================={ Header Item Separator }=================\\ 
@@ -70,9 +82,13 @@ struct contact_t {
     std::string kyber1024;
     std::string ed25519;
 
-    std::unordered_map<std::string, std::string*> MAP;
+    std::map<std::string, std::string*> MAP;
 
     contact_t() {
+      initMap();
+    }
+
+    void initMap() {
       this->MAP["name"] = &this->name;
       this->MAP["rsa2048"] = &this->rsa2048;
       this->MAP["rsa4096"] = &this->rsa4096;
@@ -80,6 +96,31 @@ struct contact_t {
       this->MAP["kyber768"] = &this->kyber768;
       this->MAP["kyber1024"] = &this->kyber1024;
       this->MAP["ed25519"] = &this->ed25519;
+    }
+
+    // copy constructor that refreshes ptrs
+    contact_t(contact_t& obj) : id(obj.id) {
+      initMap();
+      for (const auto& [field, ptr] : obj.MAP) {
+        *(this->MAP[field]) = *ptr;  // copy field
+      }
+    }
+
+    //=====[ Declaration Separator ]=====\\ 
+
+    std::string to_json_str() const {
+      nlohmann::ordered_json j;
+
+      j["id"] = this->id;
+      j["name"] = this->name;
+
+      for (const auto& [field, ptr] : this->MAP) {
+        if (field != "name") {
+          j[field] = toB64(*ptr);
+        }
+      }
+
+      return j.dump();
     }
 };
 
@@ -97,7 +138,7 @@ struct message_t {
     //=====[ Declaration Separator ]=====\\ 
 
     std::string to_json_str() const {
-      json j;
+      nlohmann::ordered_json j;
 
       j["symmetric_key_len"] = this->symmetric_key_len;
       j["content"] = toB64(this->content);
