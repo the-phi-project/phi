@@ -25,8 +25,11 @@
 
 #include "encryption/asymmetric/rsa.hpp"
 #include "encryption/asymmetric/kyber.hpp"
+#include "encryption/asymmetric/ed25519.hpp"
+#include "encryption/asymmetric/ntru.h"
 #include "encryption/symmetric/aes.hpp"
 #include "encryption/symmetric/ccp.hpp"
+#include "encryption/symmetric/twofish.hpp"
 #include "encryption/hashing.hpp"
 #include "encryption/gzip.hpp"
 #include "database/Database.hpp"
@@ -39,13 +42,6 @@ namespace tmc = termcolor;
 //---------> [ Config. Separator ] <---------\\ 
 
 namespace phi::parser {
-
-// static const std::vector<std::string> asymtypes{"rsa2048", "rsa4096", "kyber512", "kyber768"};
-
-// static const std::vector<std::string> symtypes{"aes128", "aes192", "aes256",
-// "chacha20_poly1305"};
-
-//=====[ Declaration Separator ]=====\\ 
 
 /*
 Create the Options object that outlines all possible
@@ -64,16 +60,19 @@ int parseArguments(cxxopts::Options& options, int argc, char** argv,
 
 //================={ Header Item Separator }=================\\ 
 
+// function located in src/parser_contact.cpp
 int parseContactRequest(const cxxopts::ParseResult& result,
                         const std::shared_ptr<phi::database::Database>& DATABASE);
 
 //================={ Header Item Separator }=================\\ 
 
+// function located in src/parser_encrypt.cpp
 int parseEncryptRequest(const cxxopts::ParseResult& result,
                         const std::shared_ptr<phi::database::Database>& DATABASE);
 
 //================={ Header Item Separator }=================\\ 
 
+// function located in src/parser_decrypt.cpp
 int parseDecryptRequest(const cxxopts::ParseResult& result,
                         const std::shared_ptr<phi::database::Database>& DATABASE);
 
