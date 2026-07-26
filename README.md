@@ -1,4 +1,4 @@
-# im a bit slammed right now studying for various AP's and finals -- I will be working on all phi project repos a ton over the summer
+# this is semifunctional, and on pause for business comp, stardance, and job
 
 [![Visual Studio Code](https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?logo=vsc&logoColor=white)](#)
 [![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-8CA1AF?logo=readthedocs&logoColor=fff)](#)
